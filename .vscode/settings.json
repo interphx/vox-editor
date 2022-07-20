@@ -1,0 +1,12 @@
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": [
+        "source.organizeImports",
+        "source.formatDocument",
+        "source.fixAll.eslint"
+    ],
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "tsco.addPublicModifierIfMissing": false,
+    "tsco.addRegionIndentation": true,
+    "tsco.useRegions": false
+}

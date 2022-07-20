@@ -1,0 +1,170 @@
+import { SimpleHistory } from '../utilities/simple-history';
+
+describe('SimpleHistory', () => {
+    const createMutableHistory = (initialCount: number) =>
+        new SimpleHistory(
+            2,
+            { count: initialCount },
+            (delta: number, state) => {
+                state.count += delta;
+                return state;
+            },
+            state => ({ ...state } as const),
+            (snapshot, state) => {
+                state.count = snapshot.count;
+                return state;
+            }
+        );
+
+    const createImmutableHistory = (initialCount: number) =>
+        new SimpleHistory(
+            2,
+            { count: initialCount } as { readonly count: number },
+            (delta: number, state) => ({ ...state, count: state.count + delta }),
+            state => ({ ...state } as const),
+            snapshot => ({ count: snapshot.count } as const)
+        );
+
+    const createTestHistories = () => [createMutableHistory(0), createImmutableHistory(0)];
+
+    it.each(createTestHistories())('undoes actions', history => {
+        history.apply(10);
+        history.undo(1);
+
+        expect(history.getCurrentState().count).toBe(0);
+    });
+
+    it.each(createTestHistories())('redoes actions', history => {
+        history.apply(10);
+        history.undo(1);
+        history.redo(1);
+
+        expect(history.getCurrentState().count).toBe(10);
+    });
+
+    it.each(createTestHistories())('undoes multiple actions', history => {
+        history.apply(5);
+        history.apply(10);
+        history.apply(20);
+        history.undo(1);
+        history.undo(2);
+
+        expect(history.getCurrentState().count).toBe(0);
+    });
+
+    it.each(createTestHistories())('redoes multiple actions', history => {
+        history.apply(5);
+        history.apply(10);
+        history.apply(20);
+        history.undo(1);
+        history.undo(2);
+        history.redo(1);
+        history.redo(2);
+
+        expect(history.getCurrentState().count).toBe(35);
+    });
+
+    it.each(createTestHistories())('can reset to specific checkpoint', history => {
+        history.apply(1);
+        history.apply(1);
+        const checkpoint2 = history.getCurrentCheckpoint();
+        history.apply(1);
+        history.apply(1);
+        const checkpoint4 = history.getCurrentCheckpoint();
+        history.apply(1);
+        const checkpoint5 = history.getCurrentCheckpoint();
+        history.undo(1);
+
+        history.resetToCheckpoint(checkpoint2);
+        expect(history.getCurrentState().count).toBe(2);
+        history.resetToCheckpoint(checkpoint5);
+        expect(history.getCurrentState().count).toBe(5);
+        history.resetToCheckpoint(checkpoint4);
+        expect(history.getCurrentState().count).toBe(4);
+    });
+
+    it.each(createTestHistories())('collapses after specified checkpoint', history => {
+        history.apply(1);
+        history.apply(1);
+        const checkpoint2 = history.getCurrentCheckpoint();
+        history.apply(1);
+        history.apply(1);
+        history.apply(1);
+        const checkpoint5 = history.getCurrentCheckpoint();
+        history.undo(1);
+        history.collapseAfterCheckpoint(checkpoint2, nums => nums.reduce((sum, num) => sum + num));
+
+        expect(history.getTimeline()).toHaveLength(2);
+
+        expect(history.getCurrentState().count).toBe(4);
+        history.undo(1);
+        expect(history.getCurrentState().count).toBe(1);
+        history.undo(1);
+        expect(history.getCurrentState().count).toBe(0);
+        history.redo(2);
+        expect(history.getCurrentState().count).toBe(4);
+        expect(history.canRedo()).toBe(false);
+        expect(() => history.resetToCheckpoint(checkpoint5)).toThrow();
+    });
+
+    /*it.each(createTestHistories())('can apply transient actions', history => {
+        history.apply(5);
+        const transient = history.createTransientHistory();
+        transient.apply(2);
+        transient.apply(3);
+
+        expect(history.getCurrentState().count).toBe(10);
+    });
+
+    it.each(createTestHistories())('can undo transient actions', history => {
+        history.apply(5);
+        const transient = history.createTransientHistory();
+        transient.apply(2);
+        transient.apply(3);
+        transient.undo(1);
+
+        expect(history.getCurrentState().count).toBe(7);
+    });
+
+    it.each(createTestHistories())('can redo transient actions', history => {
+        history.apply(5);
+        const transient = history.createTransientHistory();
+        transient.apply(2);
+        transient.apply(3);
+        transient.undo(2);
+        transient.redo(1);
+
+        expect(history.getCurrentState().count).toBe(7);
+    });
+
+    it.each(createTestHistories())('does not create more than one transient history', history => {
+        history.createTransientHistory();
+        expect(() => history.createTransientHistory()).toThrow();
+    });
+
+    it.each(createTestHistories())('can merge a transient history', history => {
+        history.apply(5);
+        const transient = history.createTransientHistory();
+        transient.apply(2);
+        transient.apply(3);
+
+        history.mergeTransientHistory(actions => actions.reduce((sum, delta) => sum + delta, 0));
+        expect(history.getCurrentState().count).toBe(10);
+
+        history.apply(5);
+        expect(history.getCurrentState().count).toBe(15);
+
+        expect(() => history.createTransientHistory()).not.toThrow();
+    });
+
+    it.each(createTestHistories())('can clear a transient history', history => {
+        history.apply(5);
+        const transient = history.createTransientHistory();
+        transient.apply(2);
+        transient.apply(3);
+        transient.clear();
+        transient.apply(1);
+
+        expect(history.getCurrentState().count).toBe(6);
+    });*/
+});
