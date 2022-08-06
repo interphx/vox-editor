@@ -1,0 +1,41 @@
+export class StructureList {
+    private readonly structures: Record<string, StructureBase> = {};
+
+    addStructure(id: string, structure: StructureBase) {
+        if (this.structures[id]) throw new Error(`Structure already exists with id ${id}`);
+        this.structures[id] = structure;
+    }
+
+    removeStructure(id: string) {
+        if (!this.structures[id]) throw new Error(`Structure not found with id ${id}`);
+        delete this.structures[id];
+    }
+
+    set(id: string, x: number, y: number, z: number, blockType: number) {}
+
+    get(id: string, x: number, y: number, z: number): number {}
+
+    // Iterate all chunks in "good" order?
+
+    // Option 1: setBlock, setParam
+    // Option 2: withStructure(id, ...)
+    // Option 3: getStructure(id), which returns a mutable reference
+}
+
+interface StructureBase {
+    readonly id: string;
+    readonly name: string;
+}
+
+interface SimpleStructure extends StructureBase {
+    data: readonly number[];
+}
+
+interface MeshGenerator {
+    getMeshes(): unknown;
+}
+
+interface VoxelStorage {
+    // Do we need VoxelStorage, or should this be in Structure?
+    set(structure: unknown, worldPos: unknown, value: unknown): void;
+}

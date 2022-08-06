@@ -7,7 +7,7 @@ export function applyAction(world: MutableWorld, action: Action) {
     switch (action.type) {
         case 'SetBlock': {
             const { x, y, z } = action.position;
-            world.setBlock('xxx', x, y, z, action.blockId);
+            world.setBlock(action.structureId, x, y, z, action.blockId);
             break;
         }
         case 'Batch': {

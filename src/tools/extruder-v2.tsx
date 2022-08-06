@@ -5,7 +5,7 @@ import { InteractionFactoryV2 } from '../ui/interaction';
 import { minBy } from '../utilities/array';
 import { projectToViewport, vecToString, worldToVoxel } from '../utilities/vector';
 
-export const extruder: InteractionFactoryV2 = (event, history, setGizmos) => {
+export const extruder: InteractionFactoryV2 = (event, history, activeStructureId, setGizmos) => {
     if (!event.face || !event.worldPoint) return null;
     const worldStartVoxelPos = worldToVoxel(event.worldPoint, event.face.normal);
     const viewportStartVoxelPos = projectToViewport(worldStartVoxelPos, event.camera);
@@ -88,6 +88,7 @@ export const extruder: InteractionFactoryV2 = (event, history, setGizmos) => {
                 if (distanceFromNewVoxelToOriginalVoxelInViewport > distanceFromPointerToOriginalVoxelInViewport) break;
                 history.apply({
                     type: 'SetBlock',
+                    structureId: activeStructureId,
                     position: pt.clone(),
                     blockId: 1
                 });

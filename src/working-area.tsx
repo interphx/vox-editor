@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Vector3 } from 'three';
 import { useInteraction } from './hooks/use-interaction';
 import { useMeshBuilder } from './hooks/use-mesh-builder';
 import { useWorldHistory } from './hooks/use-world-history';
-import { World } from './rendering/world';
 import { ToolId } from './tools';
 import { PointerInteractionEvent } from './ui/pointer-interaction-event';
 import { View3d } from './ui/view-3d';
@@ -14,17 +12,14 @@ export function WorkingArea() {
     (window as any).worldHistory = worldHistory;
     const [latestEvent, setLatestEvent] = useState<PointerInteractionEvent | null>(null);
     const [toolId, setToolId] = useState<ToolId>('extruder');
+    const [activeStructureId, setActiveStructureId] = useState(worldHistory.getCurrent().getDefaultStructureId());
     const { startInteraction, updateInteraction, interactionActive, interactionGizmos } = useInteraction(
         toolId,
+        activeStructureId,
         worldHistory
     );
 
     useEffect(() => {
-        const world: World = worldHistory.getCurrent();
-        if (world.isEmpty()) {
-            worldHistory.apply({ type: 'SetBlock', position: new Vector3(2, 0, 0), blockId: 1 });
-        }
-
         const undoListener = (event: KeyboardEvent) => {
             console.log(event.key, event.code);
             const actions = {

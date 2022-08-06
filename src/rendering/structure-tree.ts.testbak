@@ -1,0 +1,18 @@
+import { Structure, StructureId } from '../structure';
+
+export class StructureTree {
+    private readonly roots: Structure[] = [];
+
+    add(structure: Structure) {
+        if (this.roots.some(root => root.id === structure.id)) throw new Error(`Structure with id ${structure.id} already exists`);
+        this.roots.push(structure);
+    }
+
+    remove(id: StructureId) {
+        const stack = [...this.roots];
+        while (stack.length > 0) {
+            const structure = stack.pop()!;
+            if (structure.id === id) 
+        }
+    }
+}

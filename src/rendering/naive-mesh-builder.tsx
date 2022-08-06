@@ -1,97 +1,44 @@
-import { Dictionary } from '../utilities/dictionary';
+import { Structure, StructureId } from '../structure';
+import { BlockId, restoreStructureSnapshot, StructureSnapshot, StructureWithChildren } from '../structure/structure';
 import { MeshBuilder } from './mesh-builder';
-import { MutableWorld, World } from './world';
+import { MutableWorld } from './world';
+
+export interface WorldSnapshot {
+    rootSnapshot: StructureSnapshot;
+}
 
 export class NaiveMeshBuilder implements MutableWorld, MeshBuilder {
     private readonly callbacks: (() => void)[] = [];
-    private readonly data: Dictionary<[number, number, number], boolean> = new Dictionary(
-        String,
-        (a, b) => a[0] === b[0] && a[1] === b[1] && a[2] === b[2]
-    );
-    private readonly transactions: {
-        readonly tempData: Dictionary<[number, number, number], boolean>;
-    }[] = [];
-    private nestedWorld: World | null = null;
 
-    constructor(nestedMeshBuilder: World | null) {
-        this.nestedWorld = nestedMeshBuilder;
+    constructor(private root: Structure & StructureWithChildren) {}
+
+    clone(): this {
+        return new NaiveMeshBuilder(this.root.clone()) as this;
     }
 
-    clone(): NaiveMeshBuilder {
-        const result = new NaiveMeshBuilder(this.nestedWorld?.clone() ?? null);
-        for (const [[x, y, z], block] of Array.from(this.data.entries())) {
-            result.setBlock('xxx', x, y, z, Number(block));
-        }
-        return result;
+    addStructure(structure: Structure) {
+        this.root.addChild(structure);
+        this.invalidate();
     }
 
-    /*
-    createTransaction() {
-        const tempData = this.data.clone();
-        tempData.clear();
-        //console.log(tempData);
-
-        const transaction = {
-            tempData,
-            valid: true,
-            set: (x: number, y: number, z: number, value: boolean) => {
-                tempData.set([x, y, z], value);
-                this.invalidate();
-            },
-            clear: () => {
-                tempData.clear();
-                this.invalidate();
-            },
-            commit: () => {
-                this.data.extend(tempData);
-                this.invalidate();
-                const index = this.transactions.indexOf(transaction);
-                if (index >= 0) this.transactions.splice(index, 1);
-                transaction.tempData = null as any;
-                transaction.valid = false;
-                transaction.set = () => {
-                    throw new Error(`Transaction is already committed`);
-                };
-                transaction.commit = () => {
-                    throw new Error(`Transaction is already committed`);
-                };
-            }
-        };
-
-        this.transactions.push(transaction);
-
-        return transaction;
-    }
-*/
-    forEach(callback: (x: number, y: number, z: number, value: number) => void): void {
-        for (const [[x, y, z], value] of Array.from(this.data.entries())) {
-            callback(x, y, z, Number(value));
-        }
-        this.nestedWorld?.forEach((x, y, z, value) => {
-            if (this.data.has([x, y, z])) return;
-            callback(x, y, z, value);
-        });
+    removeStructure(id: StructureId) {
+        this.root.removeChild(id);
+        this.invalidate();
     }
 
     getBlock(x: number, y: number, z: number): number {
-        if (this.data.has([x, y, z])) return Number(this.data.get([x, y, z]));
-        if (this.nestedWorld) return this.nestedWorld.getBlock(x, y, z);
-        return 0;
+        return this.root.get(x, y, z);
     }
 
     getMeshes(): JSX.Element[] {
         const meshes: JSX.Element[] = [];
-        const allEntries = [
-            ...Array.from(this.data.entries()),
-            ...this.transactions.flatMap(transaction => Array.from(transaction.tempData.entries()))
-        ];
-        //console.log(allEntries);
-        for (const [[x, y, z], value] of allEntries) {
-            if (!value) continue;
+
+        for (const [{ x, y, z }, blockId] of Array.from(this.root.blocks())) {
+            if (blockId === 0) continue;
             meshes.push(createCubeNode(x, y, z));
         }
-        const nestedMeshes = this.nestedWorld?.getMeshes() ?? [];
-        return [...nestedMeshes, ...meshes];
+
+        return meshes;
     }
 
     invalidate(): void {
@@ -101,32 +48,41 @@ export class NaiveMeshBuilder implements MutableWorld, MeshBuilder {
     }
 
     isEmpty(): boolean {
-        return this.data.size() === 0 && (!this.nestedWorld || this.nestedWorld.isEmpty());
+        return this.root.isEmpty();
     }
 
-    restoreSnapshot(snapshot: World): void {
-        this.data.clear();
-        snapshot.forEach((x, y, z, value) => {
-            this.setBlock('xxx', x, y, z, value);
-        });
-    }
-
-    set(x: number, y: number, z: number, value: boolean) {
-        this.data.set([x, y, z], value);
+    restoreSnapshot(snapshot: WorldSnapshot): void {
+        const restoredRoot = restoreStructureSnapshot(snapshot.rootSnapshot);
+        if (!restoredRoot.canHaveChildren()) {
+            throw new Error(`Root structure of the snapshot must be able to have children`);
+        }
+        this.root = restoredRoot;
         this.invalidate();
     }
 
-    setBlock(layerId: string, x: number, y: number, z: number, value: number): void {
-        this.set(x, y, z, Boolean(value));
+    setBlock(structureId: StructureId, x: number, y: number, z: number, value: BlockId) {
+        const structure = this.root.findChild(structureId);
+        if (!structure) throw new Error(`Structure with id ${structureId} is not found`);
+        if (!structure.isMutable()) throw new Error(`Structure with id ${structureId} is not mutable`);
+        structure.set(x, y, z, value);
+        this.invalidate();
     }
 
-    snapshot(): World {
-        return this.clone();
+    snapshot(): WorldSnapshot {
+        return { rootSnapshot: this.root.snapshot() };
+    }
+
+    getDefaultStructureId(): StructureId {
+        if (this.root.getChildren().length > 0) {
+            return this.root.getChildren()[0].id;
+        }
+        return this.root.id;
     }
 
     subscribe(callback: () => void) {
+        // TODO: Use signals?
+
         this.callbacks.push(callback);
-        if (this.nestedWorld) this.nestedWorld.subscribe(callback);
     }
 
     unsubscribe(callback: () => void) {
@@ -134,7 +90,6 @@ export class NaiveMeshBuilder implements MutableWorld, MeshBuilder {
         if (index >= 0) {
             this.callbacks.splice(index, 1);
         }
-        if (this.nestedWorld) this.nestedWorld.unsubscribe(callback);
     }
 }
 
