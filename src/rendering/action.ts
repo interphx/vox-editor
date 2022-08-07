@@ -1,5 +1,5 @@
 import { Vector3 } from 'three';
-import { StructureId } from '../structure';
+import { Structure, StructureId } from '../structure';
 
 interface SetBlockAction {
     readonly type: 'SetBlock';
@@ -8,9 +8,19 @@ interface SetBlockAction {
     readonly blockId: number;
 }
 
+interface AddStructureAction {
+    readonly type: 'AddStructure';
+    readonly structure: Structure;
+}
+
+interface RemoveStructureAction {
+    readonly type: 'RemoveStructure';
+    readonly structureId: StructureId;
+}
+
 interface BatchAction {
     readonly type: 'Batch';
     readonly actions: readonly Action[];
 }
 
-export type Action = SetBlockAction | BatchAction;
+export type Action = SetBlockAction | AddStructureAction | RemoveStructureAction | BatchAction;

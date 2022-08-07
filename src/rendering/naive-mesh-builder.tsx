@@ -1,5 +1,6 @@
 import { Structure, StructureId } from '../structure';
 import { BlockId, restoreStructureSnapshot, StructureSnapshot, StructureWithChildren } from '../structure/structure';
+import { SubscriptionHandle } from '../utilities/signal';
 import { MeshBuilder } from './mesh-builder';
 import { MutableWorld } from './world';
 
@@ -9,8 +10,16 @@ export interface WorldSnapshot {
 
 export class NaiveMeshBuilder implements MutableWorld, MeshBuilder {
     private readonly callbacks: (() => void)[] = [];
+    private readonly subscriptionByStructureId: Map<StructureId, SubscriptionHandle> = new Map();
+    private root: Structure & StructureWithChildren;
 
-    constructor(private root: Structure & StructureWithChildren) {}
+    constructor(root: Structure & StructureWithChildren) {
+        this.subscriptionByStructureId.set(
+            root.id,
+            root.onChange.subscribe(() => this.invalidate())
+        );
+        this.root = root;
+    }
 
     clone(): this {
         return new NaiveMeshBuilder(this.root.clone()) as this;
@@ -18,11 +27,17 @@ export class NaiveMeshBuilder implements MutableWorld, MeshBuilder {
 
     addStructure(structure: Structure) {
         this.root.addChild(structure);
+        this.subscriptionByStructureId.set(
+            structure.id,
+            structure.onChange.subscribe(() => this.invalidate())
+        );
         this.invalidate();
     }
 
     removeStructure(id: StructureId) {
         this.root.removeChild(id);
+        const subscription = this.subscriptionByStructureId.get(id);
+        if (subscription) subscription.unsubscribe();
         this.invalidate();
     }
 
@@ -77,6 +92,10 @@ export class NaiveMeshBuilder implements MutableWorld, MeshBuilder {
             return this.root.getChildren()[0].id;
         }
         return this.root.id;
+    }
+
+    getRoot(): Structure {
+        return this.root;
     }
 
     subscribe(callback: () => void) {

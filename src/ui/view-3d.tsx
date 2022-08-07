@@ -1,5 +1,5 @@
 import { Canvas, ThreeEvent } from '@react-three/fiber';
-import { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { UiColor, UiSize } from '../design';
 import { Gizmo, isGizmo2d, isGizmo3d } from '../rendering/gizmo';
@@ -15,6 +15,8 @@ const sceneGlobals = [
 ];
 
 export function View3d(props: {
+    readonly className?: string;
+    readonly style?: React.HTMLAttributes<HTMLDivElement>['style'];
     readonly selectedToolId: ToolId;
     readonly meshes: readonly JSX.Element[];
     readonly onDown: (event: PointerInteractionEvent) => void;
@@ -23,7 +25,7 @@ export function View3d(props: {
     readonly debugLines: readonly string[];
     readonly gizmos: readonly Gizmo[];
 }) {
-    const { onDown, onMove, onToolSelect, meshes, debugLines, selectedToolId, gizmos } = props;
+    const { onDown, onMove, onToolSelect, meshes, debugLines, selectedToolId, gizmos, style, className } = props;
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const cameraRef = useRef<PerspectiveCamera | OrthographicCamera | null>(null);
@@ -102,7 +104,7 @@ export function View3d(props: {
     }, []);
 
     return (
-        <div style={{ height: '100vh' }} onMouseMove={handleDomMove}>
+        <div style={{ height: '100vh', ...style }} className={className} onMouseMove={handleDomMove}>
             <Canvas
                 camera={{ position: [3, 3, 4] }}
                 ref={canvasRef}

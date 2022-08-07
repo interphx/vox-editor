@@ -1,4 +1,5 @@
 import { NaiveOrderedMap } from './naive-ordered-map';
+import { Signal } from './signal';
 
 export interface ActionHistory<State, Action> {
     apply(action: Action): void;
@@ -18,6 +19,8 @@ export interface ActionHistory<State, Action> {
 }
 
 export class SimpleActionHistory<State, Action, Snapshot> implements ActionHistory<State, Action> {
+    public readonly onChange: Signal<void> = new Signal();
+
     private readonly onApplyAction: (state: State, action: Action) => State;
     private readonly onMakeSnapshot: (state: State) => Snapshot;
     private readonly onRestoreSnapshot: (currentState: State, snapshot: Snapshot) => State;
@@ -53,16 +56,19 @@ export class SimpleActionHistory<State, Action, Snapshot> implements ActionHisto
         this.timeline.push(action);
         this.position += 1;
         this.createSnapshotIfNeeded();
+        this.onChange.dispatch();
     }
 
     undo(): void {
         if (this.isAtStart()) return;
         this.goTo(this.position - 1);
+        this.onChange.dispatch();
     }
 
     redo(): void {
         if (this.isAtEnd()) return;
         this.goTo(this.position + 1);
+        this.onChange.dispatch();
     }
 
     canUndo(): boolean {

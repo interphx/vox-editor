@@ -1,3 +1,4 @@
+import { Signal } from '../utilities/signal';
 import { Vec3Dictionary, Vec3Like } from '../utilities/vec3-dictionary';
 import {
     BlockId,
@@ -9,6 +10,9 @@ import {
 } from './structure';
 
 export class SimpleStructure implements Structure, MutableStructure {
+    public visible: boolean = true;
+    public readonly onChange: Signal<void> = new Signal();
+
     constructor(public readonly id: StructureId, private readonly data: Vec3Dictionary<BlockId>) {}
 
     get(x: number, y: number, z: number): number {
@@ -29,6 +33,7 @@ export class SimpleStructure implements Structure, MutableStructure {
     }
 
     blocks(): Iterable<readonly [Vec3Like, number]> {
+        if (!this.visible) return [];
         return Array.from(this.data.entries());
     }
 
@@ -46,6 +51,12 @@ export class SimpleStructure implements Structure, MutableStructure {
         } else {
             this.data.set({ x, y, z }, value);
         }
+        this.onChange.dispatch();
+    }
+
+    setVisibility(visible: boolean) {
+        this.visible = visible;
+        this.onChange.dispatch();
     }
 
     static empty(id: StructureId): SimpleStructure {

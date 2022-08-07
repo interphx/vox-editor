@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { useInteraction } from './hooks/use-interaction';
 import { useMeshBuilder } from './hooks/use-mesh-builder';
 import { useWorldHistory } from './hooks/use-world-history';
 import { ToolId } from './tools';
 import { PointerInteractionEvent } from './ui/pointer-interaction-event';
+import { StructureTreeView } from './ui/structure-tree-view';
 import { View3d } from './ui/view-3d';
 import { vecToString } from './utilities/vector';
 
@@ -77,14 +79,36 @@ export function WorkingArea() {
     ];
 
     return (
-        <View3d
-            onDown={handleDown}
-            onMove={handleMove}
-            debugLines={debugLines}
-            meshes={worldHistory.getCurrent().getMeshes()}
-            onToolSelect={setToolId}
-            selectedToolId={toolId}
-            gizmos={interactionGizmos}
-        />
+        <Container>
+            <View3d
+                style={{ flex: '1 1 1px' }}
+                onDown={handleDown}
+                onMove={handleMove}
+                debugLines={debugLines}
+                meshes={worldHistory.getCurrent().getMeshes()}
+                onToolSelect={setToolId}
+                selectedToolId={toolId}
+                gizmos={interactionGizmos}
+            />
+            <Sidebar style={{ width: '200px', flex: '0 0 200px' }}>
+                <StructureTreeView
+                    activeStructureId={activeStructureId}
+                    onItemSelect={structure => setActiveStructureId(structure.id)}
+                    history={worldHistory}
+                    world={worldHistory.getCurrent()}
+                    root={worldHistory.getCurrent().getRoot()}
+                />
+            </Sidebar>
+        </Container>
     );
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: row;
+`;
+
+const Sidebar = styled.div`
+    display: flex;
+    flex-direction: column;
+`;

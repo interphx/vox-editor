@@ -13,5 +13,6 @@ export const UiColor = {
     button: '#2C2C2C',
     buttonHover: '#373737',
     text: '#CCCCCC',
-    active: '#FFFFFF'
+    active: '#FFFFFF',
+    backgroundSelected: '#04395E'
 };
