@@ -90,7 +90,9 @@ function applyAction(project: ProjectStore, action: Action): ProjectStore {
             break;
         }
         case 'AddStructure': {
-            project.addStructure(action.structure);
+            // action.structure is a "template" for a structure.
+            // It is cloned and must not be mutated.
+            project.addStructure(action.structure.clone());
             break;
         }
         case 'RemoveStructure': {

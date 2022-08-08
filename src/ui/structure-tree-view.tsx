@@ -55,14 +55,16 @@ export const StructureTreeView = observer(function StructureTreeView({
             <Actions>
                 <button
                     onClick={() => {
+                        const id = Math.random().toString(32).slice(2);
                         const structure = SimpleStructure.fromSingleBlock(
-                            Math.random().toString(32).slice(2),
+                            id,
                             randomInteger(-4, 5),
                             randomInteger(-4, 5),
                             randomInteger(-4, 5),
                             1
                         );
                         history.apply({ type: 'AddStructure', structure });
+                        store.selectStructure(id);
                     }}
                 >
                     Add
