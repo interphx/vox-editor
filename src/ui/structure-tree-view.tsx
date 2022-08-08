@@ -1,36 +1,27 @@
-import { HTMLAttributes, useEffect } from 'react';
+import { observer } from 'mobx-react-lite';
+import { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import { UiColor } from '../design';
-import { useForceRender } from '../hooks/use-force-render';
 import { Action } from '../rendering/action';
-import { MutableWorld, World } from '../rendering/world';
+import { ProjectStore } from '../rendering/project-store';
 import { SimpleStructure, Structure, StructureId } from '../structure';
 import { ActionHistory } from '../utilities/action-history';
 import { randomInteger } from '../utilities/random';
 
-export function StructureTreeView({
-    world,
+export const StructureTreeView = observer(function StructureTreeView({
     history,
-    root,
     activeStructureId,
     onItemSelect,
     style,
     className
 }: {
-    world: MutableWorld;
-    history: ActionHistory<World, Action>;
-    root: Structure;
+    history: ActionHistory<ProjectStore, Action>;
     activeStructureId: StructureId;
     onItemSelect: (structure: Structure) => void;
     style?: HTMLAttributes<HTMLDivElement>['style'];
     className?: string;
 }) {
-    const forceRender = useForceRender();
-    useEffect(() => {
-        const subscription = root.onChange.subscribe(() => forceRender());
-        return () => subscription.unsubscribe();
-    }, [forceRender, root]);
-
+    const root = history.getCurrent().getRoot();
     const structures = root.canHaveChildren() ? [root, ...root.getChildren()] : [root];
 
     const rows = structures.map(structure => (
@@ -80,7 +71,7 @@ export function StructureTreeView({
             </Actions>
         </Container>
     );
-}
+});
 
 const Actions = styled.div``;
 

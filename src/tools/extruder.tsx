@@ -1,11 +1,12 @@
+import { runInAction } from 'mobx';
 import { Vector2, Vector3 } from 'three';
 import { Gizmo } from '../rendering/gizmo';
 import { Arrow3d } from '../ui/arrow-3d';
-import { InteractionFactoryV2 } from '../ui/interaction';
+import { InteractionFactory } from '../ui/interaction';
 import { minBy } from '../utilities/array';
 import { projectToViewport, vecToString, worldToVoxel } from '../utilities/vector';
 
-export const extruder: InteractionFactoryV2 = (event, history, activeStructureId, setGizmos) => {
+export const extruder: InteractionFactory = (event, history, setGizmos) => {
     if (!event.face || !event.worldPoint) return null;
     const worldStartVoxelPos = worldToVoxel(event.worldPoint, event.face.normal);
     const viewportStartVoxelPos = projectToViewport(worldStartVoxelPos, event.camera);
@@ -70,30 +71,34 @@ export const extruder: InteractionFactoryV2 = (event, history, activeStructureId
             const vector = event.viewportPoint.clone().sub(viewportStartVoxelPos).normalize();
             const direction = minBy(dirs, dir => Math.abs(1 - dir.viewportVector.dot(vector)));
 
-            //history.clear();
-            history.goToPosition(checkpoint);
+            runInAction(() => {
+                history.goToPosition(checkpoint);
 
-            const maxCubesToSpawn = 100;
-            let spawned = 0;
-            let pt = worldStartVoxelPos.clone();
-            while (true) {
-                if (spawned >= maxCubesToSpawn) break;
-                spawned += 1;
-                pt.add(direction.worldVector).round();
-                const distanceFromNewVoxelToOriginalVoxelInViewport = projectToViewport(pt, event.camera).distanceTo(
-                    viewportStartVoxelPos
-                );
-                const distanceFromPointerToOriginalVoxelInViewport =
-                    event.viewportPoint.distanceTo(viewportStartVoxelPos);
-                if (distanceFromNewVoxelToOriginalVoxelInViewport > distanceFromPointerToOriginalVoxelInViewport) break;
-                history.apply({
-                    type: 'SetBlock',
-                    structureId: activeStructureId,
-                    position: pt.clone(),
-                    blockId: 1
-                });
-            }
-            pt.sub(direction.worldVector).round();
+                const maxCubesToSpawn = 100;
+                let spawned = 0;
+                let pt = worldStartVoxelPos.clone();
+                while (true) {
+                    if (spawned >= maxCubesToSpawn) break;
+                    spawned += 1;
+                    pt.add(direction.worldVector).round();
+                    const distanceFromNewVoxelToOriginalVoxelInViewport = projectToViewport(
+                        pt,
+                        event.camera
+                    ).distanceTo(viewportStartVoxelPos);
+                    const distanceFromPointerToOriginalVoxelInViewport =
+                        event.viewportPoint.distanceTo(viewportStartVoxelPos);
+                    if (distanceFromNewVoxelToOriginalVoxelInViewport > distanceFromPointerToOriginalVoxelInViewport) {
+                        break;
+                    }
+                    history.apply({
+                        type: 'SetBlock',
+                        structureId: history.getCurrent().activeStructureId,
+                        position: pt.clone(),
+                        blockId: 1
+                    });
+                }
+                pt.sub(direction.worldVector).round();
+            });
 
             setGizmos(generateGizmos(vector, direction));
         },

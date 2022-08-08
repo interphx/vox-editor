@@ -1,24 +1,21 @@
+import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useInteraction } from './hooks/use-interaction';
-import { useMeshBuilder } from './hooks/use-mesh-builder';
-import { useWorldHistory } from './hooks/use-world-history';
+import { useProjectHistory } from './hooks/use-project-history';
 import { ToolId } from './tools';
 import { PointerInteractionEvent } from './ui/pointer-interaction-event';
 import { StructureTreeView } from './ui/structure-tree-view';
 import { View3d } from './ui/view-3d';
 import { vecToString } from './utilities/vector';
 
-export function WorkingArea() {
-    const worldHistory = useWorldHistory(useMeshBuilder());
-    (window as any).worldHistory = worldHistory;
+export const WorkingArea = observer(function WorkingArea() {
+    const projectHistory = useProjectHistory();
     const [latestEvent, setLatestEvent] = useState<PointerInteractionEvent | null>(null);
     const [toolId, setToolId] = useState<ToolId>('extruder');
-    const [activeStructureId, setActiveStructureId] = useState(worldHistory.getCurrent().getDefaultStructureId());
     const { startInteraction, updateInteraction, interactionActive, interactionGizmos } = useInteraction(
         toolId,
-        activeStructureId,
-        worldHistory
+        projectHistory
     );
 
     useEffect(() => {
@@ -26,17 +23,17 @@ export function WorkingArea() {
             console.log(event.key, event.code);
             const actions = {
                 KeyZ: () => {
-                    if (worldHistory.canUndo()) {
+                    if (projectHistory.canUndo()) {
                         console.log(`Undo`);
-                        worldHistory.undo();
+                        projectHistory.undo();
                     } else {
                         console.log(`No actions to undo`);
                     }
                 },
                 KeyY: () => {
-                    if (worldHistory.canRedo()) {
+                    if (projectHistory.canRedo()) {
                         console.log(`Redo`);
-                        worldHistory.redo();
+                        projectHistory.redo();
                     } else {
                         console.log(`No actions to redo`);
                     }
@@ -52,7 +49,7 @@ export function WorkingArea() {
 
         window.addEventListener('keydown', undoListener, { capture: true });
         return () => window.removeEventListener('keydown', undoListener, { capture: true });
-    }, [worldHistory]);
+    }, [projectHistory]);
 
     const handleDown = useCallback(
         (event: PointerInteractionEvent) => {
@@ -85,23 +82,21 @@ export function WorkingArea() {
                 onDown={handleDown}
                 onMove={handleMove}
                 debugLines={debugLines}
-                meshes={worldHistory.getCurrent().getMeshes()}
+                meshes={projectHistory.getCurrent().getMeshes()}
                 onToolSelect={setToolId}
                 selectedToolId={toolId}
                 gizmos={interactionGizmos}
             />
             <Sidebar style={{ width: '200px', flex: '0 0 200px' }}>
                 <StructureTreeView
-                    activeStructureId={activeStructureId}
-                    onItemSelect={structure => setActiveStructureId(structure.id)}
-                    history={worldHistory}
-                    world={worldHistory.getCurrent()}
-                    root={worldHistory.getCurrent().getRoot()}
+                    activeStructureId={projectHistory.getCurrent().activeStructureId}
+                    onItemSelect={structure => (projectHistory.getCurrent().activeStructureId = structure.id)}
+                    history={projectHistory}
                 />
             </Sidebar>
         </Container>
     );
-}
+});
 
 const Container = styled.div`
     display: flex;

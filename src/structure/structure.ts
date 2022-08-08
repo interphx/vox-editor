@@ -1,4 +1,3 @@
-import { SignalObservable } from '../utilities/signal';
 import { Vec3Like } from '../utilities/vec3-dictionary';
 
 export type StructureId = string;
@@ -12,7 +11,6 @@ export function restoreStructureSnapshot(snapshot: StructureSnapshot): Structure
 
 export interface Structure {
     readonly id: StructureId;
-    readonly onChange: SignalObservable<void>;
     readonly visible: boolean;
     get(x: number, y: number, z: number): BlockId;
     isMutable(): this is MutableStructure;
@@ -22,6 +20,7 @@ export interface Structure {
     isEmpty(): boolean;
     snapshot(): StructureSnapshot;
     setVisibility(visible: boolean): void;
+    isOrContains(id: StructureId): boolean;
 }
 
 export interface MutableStructure extends Structure {

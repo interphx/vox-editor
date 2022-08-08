@@ -1,5 +1,5 @@
-import { extruder } from './extruder-v2';
-import { pencil } from './pencil-v2';
+import { extruder } from './extruder';
+import { pencil } from './pencil';
 
 export const tools = {
     pencil,

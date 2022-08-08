@@ -1,4 +1,4 @@
-import { Signal } from '../utilities/signal';
+import { makeObservable, observable } from 'mobx';
 import { Vec3Dictionary, Vec3Like } from '../utilities/vec3-dictionary';
 import {
     BlockId,
@@ -10,10 +10,13 @@ import {
 } from './structure';
 
 export class SimpleStructure implements Structure, MutableStructure {
-    public visible: boolean = true;
-    public readonly onChange: Signal<void> = new Signal();
-
-    constructor(public readonly id: StructureId, private readonly data: Vec3Dictionary<BlockId>) {}
+    constructor(
+        public readonly id: StructureId,
+        public visible: boolean,
+        private readonly data: Vec3Dictionary<BlockId>
+    ) {
+        makeObservable(this, { visible: observable.ref });
+    }
 
     get(x: number, y: number, z: number): number {
         const key = { x, y, z };
@@ -29,7 +32,7 @@ export class SimpleStructure implements Structure, MutableStructure {
     }
 
     clone(): this {
-        return new SimpleStructure(this.id, this.data.clone()) as this;
+        return new SimpleStructure(this.id, this.visible, this.data.clone()) as this;
     }
 
     blocks(): Iterable<readonly [Vec3Like, number]> {
@@ -51,16 +54,18 @@ export class SimpleStructure implements Structure, MutableStructure {
         } else {
             this.data.set({ x, y, z }, value);
         }
-        this.onChange.dispatch();
     }
 
     setVisibility(visible: boolean) {
         this.visible = visible;
-        this.onChange.dispatch();
+    }
+
+    isOrContains(id: StructureId): boolean {
+        return this.id === id;
     }
 
     static empty(id: StructureId): SimpleStructure {
-        return new SimpleStructure(id, new Vec3Dictionary());
+        return new SimpleStructure(id, true, new Vec3Dictionary());
     }
 
     static fromSingleBlock(id: StructureId, x: number, y: number, z: number, value: BlockId): SimpleStructure {
