@@ -1,4 +1,4 @@
-import { makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import { Vec3Like } from '../utilities/vec3-dictionary';
 import {
     BlockId,
@@ -13,7 +13,8 @@ export class GroupStructure implements Structure, StructureWithChildren {
     constructor(public readonly id: StructureId, public visible: boolean, private readonly children: Structure[]) {
         makeObservable<GroupStructure, 'children'>(this, {
             visible: observable.ref,
-            children: observable.shallow
+            children: observable.shallow,
+            setVisibility: action
         });
     }
 

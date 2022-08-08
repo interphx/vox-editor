@@ -1,4 +1,4 @@
-import { makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import { Vec3Dictionary, Vec3Like } from '../utilities/vec3-dictionary';
 import {
     BlockId,
@@ -15,7 +15,7 @@ export class SimpleStructure implements Structure, MutableStructure {
         public visible: boolean,
         private readonly data: Vec3Dictionary<BlockId>
     ) {
-        makeObservable(this, { visible: observable.ref });
+        makeObservable(this, { visible: observable.ref, setVisibility: action });
     }
 
     get(x: number, y: number, z: number): number {

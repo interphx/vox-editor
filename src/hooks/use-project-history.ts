@@ -14,7 +14,16 @@ export function useProjectHistory() {
                 ),
                 applyAction,
                 project => project.clone(),
-                (_project, snapshot) => snapshot.clone(),
+                (project, snapshot) => {
+                    const result = snapshot.clone();
+
+                    if (result.getRoot().isOrContains(project.activeStructureId)) {
+                        result.selectStructure(project.activeStructureId);
+                        result.activeStructureId = project.activeStructureId;
+                    }
+
+                    return result;
+                },
                 5
             )
     );

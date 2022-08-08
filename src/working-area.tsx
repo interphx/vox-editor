@@ -90,7 +90,7 @@ export const WorkingArea = observer(function WorkingArea() {
             <Sidebar style={{ width: '200px', flex: '0 0 200px' }}>
                 <StructureTreeView
                     activeStructureId={projectHistory.getCurrent().activeStructureId}
-                    onItemSelect={structure => (projectHistory.getCurrent().activeStructureId = structure.id)}
+                    onItemSelect={structure => projectHistory.getCurrent().selectStructure(structure.id)}
                     history={projectHistory}
                 />
             </Sidebar>

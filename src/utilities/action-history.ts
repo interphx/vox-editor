@@ -1,4 +1,4 @@
-import { makeObservable, observable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import { NaiveOrderedMap } from './naive-ordered-map';
 
 export interface ActionHistory<State, Action> {
@@ -48,7 +48,10 @@ export class SimpleActionHistory<State, Action, Snapshot> implements ActionHisto
 
         makeObservable<SimpleActionHistory<State, Action, Snapshot>, 'state' | 'position'>(this, {
             state: observable.ref,
-            position: observable.ref
+            position: observable.ref,
+            apply: action,
+            undo: action,
+            redo: action
         });
     }
 

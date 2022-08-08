@@ -4,11 +4,11 @@ import { BlockId, StructureId, StructureWithChildren } from '../structure/struct
 
 export class ProjectStore {
     constructor(public activeStructureId: StructureId, private readonly root: Structure & StructureWithChildren) {
-        this.activeStructureId = getDefaultActiveStructureId(root);
         makeObservable<ProjectStore, 'activeStructureId'>(this, {
             activeStructureId: observable.ref,
             addStructure: action,
             removeStructure: action,
+            selectStructure: action,
             setBlock: action
         });
     }
@@ -28,6 +28,10 @@ export class ProjectStore {
         if (updateActiveId) {
             this.activeStructureId = getDefaultActiveStructureId(this.root);
         }
+    }
+
+    selectStructure(structureId: StructureId) {
+        this.activeStructureId = structureId;
     }
 
     getBlock(x: number, y: number, z: number): number {
