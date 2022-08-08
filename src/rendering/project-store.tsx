@@ -1,20 +1,28 @@
 import { action, makeObservable, observable } from 'mobx';
 import { Structure } from '../structure';
 import { BlockId, StructureId, StructureWithChildren } from '../structure/structure';
+import { Palette } from './palette';
 
 export class ProjectStore {
-    constructor(public activeStructureId: StructureId, private readonly root: Structure & StructureWithChildren) {
+    constructor(
+        public activeStructureId: StructureId,
+        private readonly root: Structure & StructureWithChildren,
+        private readonly palette: Palette,
+        public selectedBlockId: BlockId
+    ) {
         makeObservable<ProjectStore, 'activeStructureId'>(this, {
             activeStructureId: observable.ref,
+            selectedBlockId: observable.ref,
             addStructure: action,
             removeStructure: action,
             selectStructure: action,
+            selectBlockType: action,
             setBlock: action
         });
     }
 
     clone() {
-        return new ProjectStore(this.activeStructureId, this.root.clone());
+        return new ProjectStore(this.activeStructureId, this.root.clone(), this.palette, this.selectedBlockId);
     }
 
     addStructure(structure: Structure) {
@@ -31,7 +39,18 @@ export class ProjectStore {
     }
 
     selectStructure(structureId: StructureId) {
+        if (!this.root.isOrContains(structureId)) {
+            throw new Error(`Structure ${structureId} is not in the hierarchy`);
+        }
         this.activeStructureId = structureId;
+    }
+
+    selectBlockType(blockId: BlockId) {
+        console.log(`Selected: ${blockId}, ${this.palette.getById(blockId)!.color}`);
+        if (this.palette.getById(blockId) === null) {
+            throw new Error(`BlockId ${blockId} is not in the palette`);
+        }
+        this.selectedBlockId = blockId;
     }
 
     getBlock(x: number, y: number, z: number): number {
@@ -43,7 +62,9 @@ export class ProjectStore {
 
         for (const [{ x, y, z }, blockId] of Array.from(this.root.blocks())) {
             if (blockId === 0) continue;
-            meshes.push(createCubeNode(x, y, z));
+            const color = this.palette.getById(blockId);
+            if (color === null) continue;
+            meshes.push(createCubeNode(x, y, z, color.color));
         }
 
         return meshes;
@@ -51,6 +72,10 @@ export class ProjectStore {
 
     getRoot() {
         return this.root;
+    }
+
+    getPalette() {
+        return this.palette;
     }
 
     isEmpty(): boolean {
@@ -73,14 +98,14 @@ function getDefaultActiveStructureId(root: Structure) {
     return root.id;
 }
 
-function createCubeNode(x: number, y: number, z: number): JSX.Element {
+function createCubeNode(x: number, y: number, z: number, color: string): JSX.Element {
     return (
         <mesh key={`${x};${y};${z}`} position={[x, y, z]}>
             {boxGeo}
-            {testMaterial}
+            <meshPhongMaterial color={color} />
         </mesh>
     );
 }
 
 const boxGeo = <boxGeometry args={[1, 1, 1]} />;
-const testMaterial = <meshPhongMaterial color={'orange'} />;
+//const testMaterial = <meshPhongMaterial color={'orange'} />;

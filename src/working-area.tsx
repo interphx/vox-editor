@@ -3,9 +3,13 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useInteraction } from './hooks/use-interaction';
 import { useProjectHistory } from './hooks/use-project-history';
-import { ToolId } from './tools';
+import { BlockId } from './structure/structure';
+import { ToolId, tools } from './tools';
+import { ActionBar } from './ui/action-bar';
+import { ColorPicker } from './ui/color-picker';
 import { PointerInteractionEvent } from './ui/pointer-interaction-event';
 import { StructureTreeView } from './ui/structure-tree-view';
+import { ToolButton } from './ui/tool-button';
 import { View3d } from './ui/view-3d';
 import { vecToString } from './utilities/vector';
 
@@ -17,6 +21,7 @@ export const WorkingArea = observer(function WorkingArea() {
         toolId,
         projectHistory
     );
+    const project = projectHistory.getCurrent();
 
     useEffect(() => {
         const undoListener = (event: KeyboardEvent) => {
@@ -82,10 +87,28 @@ export const WorkingArea = observer(function WorkingArea() {
                 onDown={handleDown}
                 onMove={handleMove}
                 debugLines={debugLines}
-                meshes={projectHistory.getCurrent().getMeshes()}
+                meshes={project.getMeshes()}
                 onToolSelect={setToolId}
                 selectedToolId={toolId}
                 gizmos={interactionGizmos}
+                actions={
+                    <ActionBar>
+                        {Object.entries(tools).map(([itemId, tool], index) => (
+                            <ToolButton
+                                key={itemId}
+                                active={itemId === toolId}
+                                onClick={() => setToolId(itemId as ToolId)}
+                            >
+                                {itemId.toUpperCase().charAt(0)}
+                            </ToolButton>
+                        ))}
+                        <ColorPicker
+                            getCurrentColorId={() => project.selectedBlockId}
+                            onColorSelect={id => project.selectBlockType(id)}
+                            getPalette={() => project.getPalette()}
+                        />
+                    </ActionBar>
+                }
             />
             <Sidebar style={{ width: '200px', flex: '0 0 200px' }}>
                 <StructureTreeView

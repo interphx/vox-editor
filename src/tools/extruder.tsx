@@ -94,7 +94,7 @@ export const extruder: InteractionFactory = (event, history, setGizmos) => {
                         type: 'SetBlock',
                         structureId: history.getCurrent().activeStructureId,
                         position: pt.clone(),
-                        blockId: 1
+                        blockId: history.getCurrent().selectedBlockId
                     });
                 }
                 pt.sub(direction.worldVector).round();

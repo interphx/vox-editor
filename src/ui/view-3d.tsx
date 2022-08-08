@@ -1,12 +1,11 @@
 import { Canvas, ThreeEvent } from '@react-three/fiber';
 import React, { useCallback, useMemo, useRef } from 'react';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
-import { UiColor, UiSize } from '../design';
+import { UiColor } from '../design';
 import { Gizmo, isGizmo2d, isGizmo3d } from '../rendering/gizmo';
-import { ToolId, tools } from '../tools';
+import { ToolId } from '../tools';
 import { vecToString } from '../utilities/vector';
 import { PointerInteractionEvent } from './pointer-interaction-event';
-import { ToolButton } from './tool-button';
 
 const sceneGlobals = [
     <color key="bgcolor" attach="background" args={[new Color(UiColor.background)]} />,
@@ -17,6 +16,7 @@ const sceneGlobals = [
 export function View3d(props: {
     readonly className?: string;
     readonly style?: React.HTMLAttributes<HTMLDivElement>['style'];
+    readonly actions: JSX.Element;
     readonly selectedToolId: ToolId;
     readonly meshes: readonly JSX.Element[];
     readonly onDown: (event: PointerInteractionEvent) => void;
@@ -25,7 +25,8 @@ export function View3d(props: {
     readonly debugLines: readonly string[];
     readonly gizmos: readonly Gizmo[];
 }) {
-    const { onDown, onMove, onToolSelect, meshes, debugLines, selectedToolId, gizmos, style, className } = props;
+    const { onDown, onMove, onToolSelect, meshes, debugLines, selectedToolId, gizmos, actions, style, className } =
+        props;
 
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const cameraRef = useRef<PerspectiveCamera | OrthographicCamera | null>(null);
@@ -157,20 +158,7 @@ export function View3d(props: {
                     <div key={line}>{line}</div>
                 ))}
             </div>
-            {Object.entries(tools).map(([toolId, tool], index) => (
-                <ToolButton
-                    key={toolId}
-                    style={{
-                        position: 'absolute',
-                        bottom: `calc(${UiSize.M} + (${UiSize.L} + ${UiSize.XS}) * ${index})`,
-                        left: UiSize.M
-                    }}
-                    active={selectedToolId === toolId}
-                    onClick={() => onToolSelect(toolId as ToolId)}
-                >
-                    {toolId.toUpperCase().charAt(0)}
-                </ToolButton>
-            ))}
+            {actions}
         </div>
     );
 }

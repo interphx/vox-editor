@@ -21,7 +21,7 @@ export const pencil: InteractionFactory = (event, history, setGizmos) => {
             type: 'SetBlock',
             structureId: project.activeStructureId,
             position: newVoxelPos,
-            blockId: 1
+            blockId: project.selectedBlockId
         });
     };
 

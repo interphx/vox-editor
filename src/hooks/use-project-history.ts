@@ -1,4 +1,5 @@
 import { Action } from '../rendering/action';
+import { Palette } from '../rendering/palette';
 import { ProjectStore } from '../rendering/project-store';
 import { GroupStructure, SimpleStructure } from '../structure';
 import { SimpleActionHistory } from '../utilities/action-history';
@@ -10,7 +11,9 @@ export function useProjectHistory() {
             new SimpleActionHistory(
                 new ProjectStore(
                     'structure0',
-                    new GroupStructure(':root:', true, [SimpleStructure.fromSingleBlock('structure0', 0, 0, 0, 1)])
+                    new GroupStructure(':root:', true, [SimpleStructure.fromSingleBlock('structure0', 0, 0, 0, 1)]),
+                    Palette.fromColorList(['orange', 'cyan', 'green', 'pink']),
+                    1
                 ),
                 applyAction,
                 project => project.clone(),
