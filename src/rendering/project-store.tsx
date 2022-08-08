@@ -1,28 +1,19 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, makeObservable } from 'mobx';
 import { Structure } from '../structure';
 import { BlockId, StructureId, StructureWithChildren } from '../structure/structure';
 import { Palette } from './palette';
 
 export class ProjectStore {
-    constructor(
-        public activeStructureId: StructureId,
-        private readonly root: Structure & StructureWithChildren,
-        private readonly palette: Palette,
-        public selectedBlockId: BlockId
-    ) {
-        makeObservable<ProjectStore, 'activeStructureId'>(this, {
-            activeStructureId: observable.ref,
-            selectedBlockId: observable.ref,
+    constructor(private readonly root: Structure & StructureWithChildren, private readonly palette: Palette) {
+        makeObservable<ProjectStore>(this, {
             addStructure: action,
             removeStructure: action,
-            selectStructure: action,
-            selectBlockType: action,
             setBlock: action
         });
     }
 
     clone() {
-        return new ProjectStore(this.activeStructureId, this.root.clone(), this.palette, this.selectedBlockId);
+        return new ProjectStore(this.root.clone(), this.palette);
     }
 
     addStructure(structure: Structure) {
@@ -30,27 +21,7 @@ export class ProjectStore {
     }
 
     removeStructure(structureId: StructureId) {
-        const structure = this.root.findChild(structureId);
-        const updateActiveId = structure && structure.isOrContains(structureId);
         this.root.removeChild(structureId);
-        if (updateActiveId) {
-            this.activeStructureId = getDefaultActiveStructureId(this.root);
-        }
-    }
-
-    selectStructure(structureId: StructureId) {
-        if (!this.root.isOrContains(structureId)) {
-            throw new Error(`Structure ${structureId} is not in the hierarchy`);
-        }
-        this.activeStructureId = structureId;
-    }
-
-    selectBlockType(blockId: BlockId) {
-        console.log(`Selected: ${blockId}, ${this.palette.getById(blockId)!.color}`);
-        if (this.palette.getById(blockId) === null) {
-            throw new Error(`BlockId ${blockId} is not in the palette`);
-        }
-        this.selectedBlockId = blockId;
     }
 
     getBlock(x: number, y: number, z: number): number {
@@ -88,14 +59,6 @@ export class ProjectStore {
         if (!structure.isMutable()) throw new Error(`Structure with id ${structureId} is not mutable`);
         structure.set(x, y, z, value);
     }
-}
-
-function getDefaultActiveStructureId(root: Structure) {
-    if (root.canHaveChildren()) {
-        const children = root.getChildren();
-        if (children.length > 0) return children[0].id;
-    }
-    return root.id;
 }
 
 function createCubeNode(x: number, y: number, z: number, color: string): JSX.Element {

@@ -2,30 +2,29 @@ import { observer } from 'mobx-react-lite';
 import { HTMLAttributes } from 'react';
 import styled from 'styled-components';
 import { UiColor } from '../design';
-import { Action } from '../rendering/action';
-import { ProjectStore } from '../rendering/project-store';
-import { SimpleStructure, Structure, StructureId } from '../structure';
-import { ActionHistory } from '../utilities/action-history';
+import { useRootStore } from '../hooks/use-root-store';
+import { SimpleStructure } from '../structure';
 import { randomInteger } from '../utilities/random';
 
 export const StructureTreeView = observer(function StructureTreeView({
-    history,
-    activeStructureId,
-    onItemSelect,
     style,
     className
 }: {
-    history: ActionHistory<ProjectStore, Action>;
-    activeStructureId: StructureId;
-    onItemSelect: (structure: Structure) => void;
     style?: HTMLAttributes<HTMLDivElement>['style'];
     className?: string;
 }) {
+    const store = useRootStore();
+    const history = store.getHistory();
     const root = history.getCurrent().getRoot();
     const structures = root.canHaveChildren() ? [root, ...root.getChildren()] : [root];
+    const activeStructureId = store.getSelectedStructureId();
 
     const rows = structures.map(structure => (
-        <Item active={activeStructureId === structure.id} key={structure.id} onClick={() => onItemSelect(structure)}>
+        <Item
+            active={activeStructureId === structure.id}
+            key={structure.id}
+            onClick={() => store.selectStructure(structure.id)}
+        >
             <Title>{structure.id}</Title>
             <ItemActions>
                 <button

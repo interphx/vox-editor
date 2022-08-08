@@ -2,11 +2,10 @@ import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { useInteraction } from './hooks/use-interaction';
-import { useProjectHistory } from './hooks/use-project-history';
-import { BlockId } from './structure/structure';
+import { useRootStore } from './hooks/use-root-store';
 import { ToolId, tools } from './tools';
 import { ActionBar } from './ui/action-bar';
-import { ColorPicker } from './ui/color-picker';
+import { BlockTypePicker } from './ui/color-picker';
 import { PointerInteractionEvent } from './ui/pointer-interaction-event';
 import { StructureTreeView } from './ui/structure-tree-view';
 import { ToolButton } from './ui/tool-button';
@@ -14,12 +13,13 @@ import { View3d } from './ui/view-3d';
 import { vecToString } from './utilities/vector';
 
 export const WorkingArea = observer(function WorkingArea() {
-    const projectHistory = useProjectHistory();
+    const rootStore = useRootStore();
+    const projectHistory = rootStore.getHistory();
     const [latestEvent, setLatestEvent] = useState<PointerInteractionEvent | null>(null);
     const [toolId, setToolId] = useState<ToolId>('extruder');
     const { startInteraction, updateInteraction, interactionActive, interactionGizmos } = useInteraction(
         toolId,
-        projectHistory
+        rootStore
     );
     const project = projectHistory.getCurrent();
 
@@ -102,20 +102,12 @@ export const WorkingArea = observer(function WorkingArea() {
                                 {itemId.toUpperCase().charAt(0)}
                             </ToolButton>
                         ))}
-                        <ColorPicker
-                            getCurrentColorId={() => project.selectedBlockId}
-                            onColorSelect={id => project.selectBlockType(id)}
-                            getPalette={() => project.getPalette()}
-                        />
+                        <BlockTypePicker />
                     </ActionBar>
                 }
             />
             <Sidebar style={{ width: '200px', flex: '0 0 200px' }}>
-                <StructureTreeView
-                    activeStructureId={projectHistory.getCurrent().activeStructureId}
-                    onItemSelect={structure => projectHistory.getCurrent().selectStructure(structure.id)}
-                    history={projectHistory}
-                />
+                <StructureTreeView />
             </Sidebar>
         </Container>
     );

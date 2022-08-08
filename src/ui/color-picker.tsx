@@ -1,21 +1,15 @@
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import styled from 'styled-components';
-import { Palette } from '../rendering/palette';
+import { useRootStore } from '../hooks/use-root-store';
 import { AspectRatioContainer } from './aspect-ratio';
 import { ToolButton } from './tool-button';
 
-export const ColorPicker = observer(function ColorPicker({
-    getPalette,
-    getCurrentColorId: getCurrentColor,
-    onColorSelect
-}: {
-    getPalette: () => Palette;
-    getCurrentColorId: () => number;
-    onColorSelect: (colorId: number) => void;
-}) {
-    const colorId = getCurrentColor();
-    const palette = getPalette();
+export const BlockTypePicker = observer(function ColorPicker() {
+    const store = useRootStore();
+    const colorId = store.getSelectedBlockId();
+    const project = store.getHistory().getCurrent();
+    const palette = project.getPalette();
     const [open, setOpen] = useState(false);
     return (
         <Container>
@@ -34,7 +28,7 @@ export const ColorPicker = observer(function ColorPicker({
                             height="100%"
                             aspectRatio={1}
                             style={{ background: color }}
-                            onClick={() => onColorSelect(id)}
+                            onClick={() => store.selectBlockType(id)}
                         >
                             C
                         </Item>

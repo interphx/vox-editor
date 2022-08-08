@@ -4,8 +4,10 @@ import { PointerInteractionEvent } from '../ui/pointer-interaction-event';
 import { Vec3Dictionary } from '../utilities/vec3-dictionary';
 import { worldToVoxel } from '../utilities/vector';
 
-export const pencil: InteractionFactory = (event, history, setGizmos) => {
+export const pencil: InteractionFactory = (event, store, setGizmos) => {
     if (!event.face || !event.worldPoint) return null;
+
+    const history = store.getHistory();
 
     const drawn = new Vec3Dictionary<boolean>();
 
@@ -19,9 +21,9 @@ export const pencil: InteractionFactory = (event, history, setGizmos) => {
         drawn.set(newVoxelPos, true);
         history.apply({
             type: 'SetBlock',
-            structureId: project.activeStructureId,
+            structureId: store.getSelectedStructureId(),
             position: newVoxelPos,
-            blockId: project.selectedBlockId
+            blockId: store.getSelectedBlockId()
         });
     };
 

@@ -1,13 +1,11 @@
 import { useCallback, useRef, useState } from 'react';
-import { Action } from '../rendering/action';
 import { Gizmo } from '../rendering/gizmo';
-import { ProjectStore } from '../rendering/project-store';
+import { RootStore } from '../rendering/root-store';
 import { ToolId, tools } from '../tools';
 import { Interaction } from '../ui/interaction';
 import { PointerInteractionEvent } from '../ui/pointer-interaction-event';
-import { ActionHistory } from '../utilities/action-history';
 
-export function useInteraction(toolId: ToolId, history: ActionHistory<ProjectStore, Action>) {
+export function useInteraction(toolId: ToolId, store: RootStore) {
     const [interactionActive, setInteractionActive] = useState(false);
     const [interactionGizmos, setInteractionGizmos] = useState<readonly Gizmo[]>([]);
     const interactionRef = useRef<Interaction | null>(null);
@@ -15,9 +13,10 @@ export function useInteraction(toolId: ToolId, history: ActionHistory<ProjectSto
     const startInteraction = useCallback(
         (event: PointerInteractionEvent) => {
             if (interactionRef.current) return;
+            const history = store.getHistory();
             const checkpoint = history.getCurrentPosition();
 
-            const interaction = tools[toolId](event, history, setInteractionGizmos);
+            const interaction = tools[toolId](event, store, setInteractionGizmos);
             if (!interaction) return;
 
             interactionRef.current = interaction;
@@ -37,7 +36,7 @@ export function useInteraction(toolId: ToolId, history: ActionHistory<ProjectSto
             window.addEventListener('pointerup', finish);
             window.addEventListener('blur', finish);
         },
-        [history, toolId]
+        [store, toolId]
     );
 
     const updateInteraction = useCallback(

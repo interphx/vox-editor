@@ -1,7 +1,5 @@
-import { Action } from '../rendering/action';
 import { Gizmo } from '../rendering/gizmo';
-import { ProjectStore } from '../rendering/project-store';
-import { ActionHistory } from '../utilities/action-history';
+import { RootStore } from '../rendering/root-store';
 import { PointerInteractionEvent } from './pointer-interaction-event';
 
 export interface Interaction {
@@ -11,6 +9,6 @@ export interface Interaction {
 
 export type InteractionFactory = (
     event: PointerInteractionEvent,
-    history: ActionHistory<ProjectStore, Action>,
+    store: RootStore,
     setGizmos: (gizmos: readonly Gizmo[]) => void
 ) => Interaction | null;
