@@ -6,6 +6,15 @@
         "source.fixAll.eslint"
     ],
     "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/node_modules": true
+    },
     "tsco.addPublicModifierIfMissing": false,
     "tsco.addRegionIndentation": true,
     "tsco.useRegions": false
