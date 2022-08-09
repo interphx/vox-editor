@@ -7,7 +7,7 @@ export interface Interaction {
     finish(): void;
 }
 
-export type InteractionFactory = (
+export type Tool = (
     event: PointerInteractionEvent,
     store: RootStore,
     setGizmos: (gizmos: readonly Gizmo[]) => void

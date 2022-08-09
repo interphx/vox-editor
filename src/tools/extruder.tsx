@@ -2,7 +2,7 @@ import { runInAction } from 'mobx';
 import { Vector2, Vector3 } from 'three';
 import { Gizmo } from '../rendering/gizmo';
 import { Arrow3d } from '../ui/arrow-3d';
-import { InteractionFactory } from '../ui/interaction';
+import { Tool } from '../ui/interaction';
 import { minBy } from '../utilities/array';
 import { projectToViewport, vecToString, worldToVoxel } from '../utilities/vector';
 
@@ -16,7 +16,7 @@ const cardinalDirections = [
     new Vector3(0, 0, +1)
 ];
 
-export const extruder: InteractionFactory = (event, store, setGizmos) => {
+export const extruder: Tool = (event, store, setGizmos) => {
     if (!event.face || !event.worldPoint) return null;
     const startVoxelPosInWorld = worldToVoxel(event.worldPoint, event.face.normal);
     const startVoxelPosInViewport = projectToViewport(startVoxelPosInWorld, event.camera);

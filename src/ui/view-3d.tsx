@@ -34,7 +34,8 @@ export function View3d(props: {
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     const [camera, setCamera] = useState<PerspectiveCamera | OrthographicCamera>(() => {
         const camera = new PerspectiveCamera();
-        camera.position.set(3, 3, 4);
+        camera.position.set(6, 6, 8);
+        camera.lookAt(0, 0, 0);
         return camera;
     });
     const latestHoveredObjectData = useRef<{
@@ -87,6 +88,7 @@ export function View3d(props: {
 
     const handleThreeDown = useCallback(
         (event: ThreeEvent<MouseEvent>) => {
+            if (event.nativeEvent.button !== 0) return;
             latestHoveredObjectData.current.object = event.object;
             latestHoveredObjectData.current.face = event.face ?? null;
             latestHoveredObjectData.current.worldPoint = event.point;
@@ -97,6 +99,7 @@ export function View3d(props: {
 
     const handleThreeMissed = useCallback(
         (event: MouseEvent) => {
+            if (event.button !== 0) return;
             latestHoveredObjectData.current.object = null;
             latestHoveredObjectData.current.face = null;
             latestHoveredObjectData.current.worldPoint = null;
@@ -130,7 +133,12 @@ export function View3d(props: {
     }, [enableControls]);
 
     return (
-        <div style={{ height: '100vh', ...style }} className={className} onMouseMove={handleDomMove}>
+        <div
+            style={{ height: '100vh', ...style }}
+            className={className}
+            onMouseMoveCapture={handleDomMove}
+            onContextMenuCapture={event => event.preventDefault()}
+        >
             <Canvas camera={camera} ref={element => setCanvas(element)} onCreated={event => setCamera(event.camera)}>
                 {sceneGlobals}
                 <group
@@ -155,7 +163,9 @@ export function View3d(props: {
                         transform: 'translate(-50%, -50%)',
                         color: item.color,
                         backgroundColor: item.type === '2d-dot' ? item.color : undefined,
-                        borderRadius: item.type === '2d-dot' ? '50%' : undefined
+                        borderRadius: item.type === '2d-dot' ? '50%' : undefined,
+                        pointerEvents: 'none',
+                        userSelect: 'none'
                     }}
                 >
                     {item.type === '2d-text' ? item.text : ''}
@@ -167,7 +177,8 @@ export function View3d(props: {
                     top: '15px',
                     left: '15px',
                     color: 'white',
-                    userSelect: 'none'
+                    userSelect: 'none',
+                    pointerEvents: 'none'
                 }}
             >
                 {debugLines.map(line => (

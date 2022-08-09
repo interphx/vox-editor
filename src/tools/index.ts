@@ -1,9 +1,11 @@
+import { eraser } from './eraser';
 import { extruder } from './extruder';
 import { pencil } from './pencil';
 
 export const tools = {
     pencil,
-    extruder
+    extruder,
+    eraser
 };
 
 export type ToolId = keyof typeof tools;

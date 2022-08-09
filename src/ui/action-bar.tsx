@@ -15,6 +15,12 @@ const Container = styled.div`
     flex-direction: column;
     justify-content: flex-end;
     padding: ${UiSize.S};
+    pointer-events: none;
+    user-select: none;
+
+    > * {
+        pointer-events: all;
+    }
 
     > :not(:last-child) {
         margin-bottom: ${UiSize.S};

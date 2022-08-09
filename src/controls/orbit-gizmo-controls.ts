@@ -131,7 +131,7 @@ export class OrbitControls extends EventDispatcher {
         this.keys = { LEFT: 'ArrowLeft', UP: 'ArrowUp', RIGHT: 'ArrowRight', BOTTOM: 'ArrowDown' };
 
         // Mouse buttons
-        this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.DOLLY, RIGHT: MOUSE.PAN };
+        this.mouseButtons = { LEFT: MOUSE.ROTATE, MIDDLE: MOUSE.PAN, RIGHT: MOUSE.PAN };
 
         // Touch fingers
         this.touches = { ONE: TOUCH.ROTATE, TWO: TOUCH.DOLLY_PAN };
@@ -726,12 +726,12 @@ export class OrbitControls extends EventDispatcher {
 
         function onMouseDown(event: MouseEvent) {
             // Prevent the browser from scrolling.
-            event.preventDefault();
+            // event.preventDefault();
 
             // Manually set the focus since calling preventDefault above
             // prevents the browser from setting it automatically.
 
-            scope.domElement.focus ? scope.domElement.focus() : window.focus();
+            // scope.domElement.focus ? scope.domElement.focus() : window.focus();
 
             let mouseAction;
 

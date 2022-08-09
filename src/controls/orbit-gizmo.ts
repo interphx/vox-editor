@@ -260,7 +260,6 @@ export class OrbitControlsGizmo {
         }
 
         function onMouseClick() {
-            //FIXME Don't like the current animation
             if (isDragging || !selectedAxis) {
                 return;
             }
