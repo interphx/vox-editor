@@ -5,7 +5,7 @@ import { OrbitControls } from '../controls/orbit-gizmo-controls';
 import { UiColor } from '../design';
 import { Gizmo, isGizmo2d, isGizmo3d } from '../rendering/gizmo';
 import { ToolId } from '../tools';
-import { vecToString } from '../utilities/vector';
+import { Gizmo2dView } from './gizmo-2d-view';
 import { PointerInteractionEvent } from './pointer-interaction-event';
 
 const sceneGlobals = [
@@ -132,7 +132,7 @@ export function View3d(props: {
 
     return (
         <div
-            style={{ height: '100vh', ...style }}
+            style={{ height: '100vh', position: 'relative', ...style }}
             className={className}
             onMouseMoveCapture={handleDomMove}
             onContextMenuCapture={event => event.preventDefault()}
@@ -149,26 +149,23 @@ export function View3d(props: {
                     {gizmos3d}
                 </group>
             </Canvas>
-            {gizmos2d.map((item, index) => (
-                <div
-                    key={index + '' + vecToString(item.pos)}
-                    style={{
-                        width: '16px',
-                        height: '16px',
-                        position: 'absolute',
-                        top: `${((1 - item.pos.y) / 2) * 100}%`,
-                        left: `${((item.pos.x + 1) / 2) * 100}%`,
-                        transform: 'translate(-50%, -50%)',
-                        color: item.color,
-                        backgroundColor: item.type === '2d-dot' ? item.color : undefined,
-                        borderRadius: item.type === '2d-dot' ? '50%' : undefined,
-                        pointerEvents: 'none',
-                        userSelect: 'none'
-                    }}
-                >
-                    {item.type === '2d-text' ? item.text : ''}
-                </div>
+            {gizmos2d.map((gizmo, index) => (
+                <Gizmo2dView key={index} gizmo={gizmo} />
             ))}
+            {/* <Gizmo2dView
+                gizmo={{
+                    type: '2d-arrow',
+                    start: { x: 0, y: 0 },
+                    end: { x: 0, y: 0.5 },
+                    color: 'lime'
+                }}
+            /> */}
+            {/* <Gizmo2dView gizmo={{ type: '2d-dot', pos: { x: -0.5, y: -0.5 }, color: 'cyan' }} />
+            <Gizmo2dView gizmo={{ type: '2d-dot', pos: { x: 0, y: 0 }, color: 'cyan' }} />
+            <Gizmo2dView gizmo={{ type: '2d-dot', pos: { x: 0.5, y: 0.5 }, color: 'cyan' }} /> */}
+            {/* <svg style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0 }} viewBox="-1 -1 2 2">
+                <line x1={-0.5} y1={-0.5} x2={0.5} y2={0.5} stroke={'red'} strokeWidth="0.01" />
+            </svg> */}
             <div
                 style={{
                     position: 'absolute',

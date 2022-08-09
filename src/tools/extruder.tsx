@@ -20,30 +20,36 @@ export const extruder: Tool = (event, store, setGizmos) => {
     if (!event.face || !event.worldPoint) return null;
     const startVoxelPosInWorld = worldToVoxel(event.worldPoint, event.face.normal);
     const startVoxelPosInViewport = projectToViewport(startVoxelPosInWorld, event.camera);
-    const dirs = cardinalDirections.map(worldVector => ({
-        worldVector,
-        viewportVector: projectToViewport(worldVector, event.camera),
-        viewportVectorNormalized: projectToViewport(worldVector, event.camera).normalize()
-    }));
+
+    const dirs = cardinalDirections.map(absoluteVector => {
+        const projected = projectToViewport(startVoxelPosInWorld.clone().add(absoluteVector), event.camera)
+            .clone()
+            .sub(projectToViewport(startVoxelPosInWorld, event.camera));
+        return {
+            worldVector: absoluteVector,
+            viewportVector: projected,
+            viewportVectorNormalized: projected.clone().normalize()
+        };
+    });
 
     const history = store.getHistory();
     const checkpoint = history.getCurrentPosition();
 
     const generateGizmos = (mouseVector: Vector2 | null, activeDir: typeof dirs[number] | null) => {
-        const centerDot: Gizmo = {
-            type: '2d-dot',
-            color: 'cyan',
-            pos: startVoxelPosInViewport
-        };
+        // const centerDot: Gizmo = {
+        //     type: '2d-dot',
+        //     color: 'cyan',
+        //     pos: startVoxelPosInViewport
+        // };
 
-        const dotProductsWithMouse: Gizmo[] = !mouseVector
-            ? []
-            : dirs.map(dir => ({
-                  type: '2d-text',
-                  color: 'white',
-                  pos: startVoxelPosInViewport.clone().add(dir.viewportVector),
-                  text: `${Math.abs(1 - dir.viewportVectorNormalized.dot(mouseVector)).toFixed(2)}`
-              }));
+        // const dotProductsWithMouse: Gizmo[] = !mouseVector
+        //     ? []
+        //     : dirs.map(dir => ({
+        //           type: '2d-text',
+        //           color: 'white',
+        //           pos: startVoxelPosInViewport.clone().add(dir.viewportVector),
+        //           text: `${Math.abs(1 - dir.viewportVectorNormalized.dot(mouseVector)).toFixed(2)}`
+        //       }));
 
         const cardinalArrows: Gizmo[] = dirs.map(dir => ({
             type: '3d' as const,
@@ -58,7 +64,14 @@ export const extruder: Tool = (event, store, setGizmos) => {
             )
         }));
 
-        return [centerDot, ...dotProductsWithMouse, ...cardinalArrows];
+        // const viewportArrows: Gizmo[] = dirs.map(dir => ({
+        //     type: '2d-arrow' as const,
+        //     start: startVoxelPosInViewport.clone(),
+        //     end: startVoxelPosInViewport.clone().add(dir.viewportVectorNormalized.clone().multiplyScalar(0.1)),
+        //     color: 'pink'
+        // }));
+
+        return cardinalArrows;
     };
 
     setGizmos(generateGizmos(null, null));
