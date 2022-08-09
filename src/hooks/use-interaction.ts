@@ -23,7 +23,6 @@ export function useInteraction(toolId: ToolId, store: RootStore) {
             setInteractionActive(true);
 
             const finish = () => {
-                console.log('Finish called');
                 interaction.finish();
                 setInteractionActive(false);
                 setInteractionGizmos([]);

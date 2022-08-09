@@ -121,7 +121,6 @@ export function View3d(props: {
     useEffect(() => {
         if (!canvas) return () => {};
         const controls = new OrbitControls(camera, canvas);
-        console.log('Created new controls');
         orbitControlsRef.current = controls;
         return () => orbitControlsRef.current?.dispose();
     }, [camera, canvas]);
@@ -129,7 +128,6 @@ export function View3d(props: {
     useEffect(() => {
         if (!orbitControlsRef.current) return;
         orbitControlsRef.current.enabled = enableControls;
-        console.log(`Set enabled to ${orbitControlsRef.current.enabled}`);
     }, [enableControls]);
 
     return (
