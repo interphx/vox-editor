@@ -1,6 +1,7 @@
 import { Canvas, ThreeEvent } from '@react-three/fiber';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
+import { OrbitControls } from '../controls/orbit-gizmo-controls';
 import { UiColor } from '../design';
 import { Gizmo, isGizmo2d, isGizmo3d } from '../rendering/gizmo';
 import { ToolId } from '../tools';
@@ -14,22 +15,28 @@ const sceneGlobals = [
 ];
 
 export function View3d(props: {
-    readonly className?: string;
-    readonly style?: React.HTMLAttributes<HTMLDivElement>['style'];
-    readonly actions: JSX.Element;
-    readonly selectedToolId: ToolId;
-    readonly meshes: readonly JSX.Element[];
-    readonly onDown: (event: PointerInteractionEvent) => void;
-    readonly onMove: (event: PointerInteractionEvent) => void;
-    readonly onToolSelect: (tool: ToolId) => void;
-    readonly debugLines: readonly string[];
-    readonly gizmos: readonly Gizmo[];
+    className?: string;
+    style?: React.HTMLAttributes<HTMLDivElement>['style'];
+    actions: JSX.Element;
+    selectedToolId: ToolId;
+    meshes: readonly JSX.Element[];
+    onDown: (event: PointerInteractionEvent) => void;
+    onMove: (event: PointerInteractionEvent) => void;
+    onToolSelect: (tool: ToolId) => void;
+    debugLines: readonly string[];
+    gizmos: readonly Gizmo[];
+    enableControls: boolean;
 }) {
-    const { onDown, onMove, onToolSelect, meshes, debugLines, selectedToolId, gizmos, actions, style, className } =
-        props;
+    const { onDown, onMove, meshes, debugLines, enableControls, gizmos, actions, style, className } = props;
 
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const cameraRef = useRef<PerspectiveCamera | OrthographicCamera | null>(null);
+    // These are intentionally states and not refs, so that their changes
+    // trigger re-rendering.
+    const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
+    const [camera, setCamera] = useState<PerspectiveCamera | OrthographicCamera>(() => {
+        const camera = new PerspectiveCamera();
+        camera.position.set(3, 3, 4);
+        return camera;
+    });
     const latestHoveredObjectData = useRef<{
         object: Object3D | null;
         face: Face | null;
@@ -42,27 +49,30 @@ export function View3d(props: {
     const gizmos3d = useMemo(() => gizmos.filter(isGizmo3d).map(gizmo => gizmo.threeElement), [gizmos]);
     const gizmos2d = useMemo(() => gizmos.filter(isGizmo2d), [gizmos]);
 
-    const createEventData = (data: Pick<PointerInteractionEvent, 'viewportPoint'>): PointerInteractionEvent => {
-        if (!cameraRef.current) throw new Error(`Camera not initialized`);
-        return {
-            object: latestHoveredObjectData.current.object,
-            face: latestHoveredObjectData.current.face,
-            worldPoint: latestHoveredObjectData.current.worldPoint,
-            camera: cameraRef.current,
-            ...data
-        };
-    };
+    const createEventData = useCallback(
+        (data: Pick<PointerInteractionEvent, 'viewportPoint'>): PointerInteractionEvent => {
+            if (!camera) throw new Error(`Camera is not initialized`);
+            return {
+                object: latestHoveredObjectData.current.object,
+                face: latestHoveredObjectData.current.face,
+                worldPoint: latestHoveredObjectData.current.worldPoint,
+                camera,
+                ...data
+            };
+        },
+        [camera]
+    );
 
     const handleDomMove = useCallback(
         (event: React.MouseEvent) => {
-            if (!cameraRef.current) return;
-            if (event.target !== canvasRef.current) return;
+            if (!camera) return;
+            if (event.target !== canvas) return;
             const rect = (event.target as HTMLElement).getBoundingClientRect();
             const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
             const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
             onMove(createEventData({ viewportPoint: new Vector2(x, -y) }));
         },
-        [onMove]
+        [camera, canvas, createEventData, onMove]
     );
 
     const handleThreeMove = useCallback(
@@ -72,7 +82,7 @@ export function View3d(props: {
             latestHoveredObjectData.current.worldPoint = event.point;
             onMove(createEventData({ viewportPoint: event.pointer }));
         },
-        [onMove]
+        [createEventData, onMove]
     );
 
     const handleThreeDown = useCallback(
@@ -82,7 +92,7 @@ export function View3d(props: {
             latestHoveredObjectData.current.worldPoint = event.point;
             onDown(createEventData({ viewportPoint: event.pointer }));
         },
-        [onDown]
+        [createEventData, onDown]
     );
 
     const handleThreeMissed = useCallback(
@@ -95,7 +105,7 @@ export function View3d(props: {
             const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
             onDown(createEventData({ viewportPoint: new Vector2(x, -y) }));
         },
-        [onDown]
+        [createEventData, onDown]
     );
 
     const handleThreeLeave = useCallback((event: ThreeEvent<MouseEvent>) => {
@@ -104,21 +114,27 @@ export function View3d(props: {
         latestHoveredObjectData.current.worldPoint = null;
     }, []);
 
+    const orbitControlsRef = useRef<OrbitControls | null>(null);
+    useEffect(() => {
+        if (!canvas) return () => {};
+        const controls = new OrbitControls(camera, canvas);
+        console.log('Created new controls');
+        orbitControlsRef.current = controls;
+        return () => orbitControlsRef.current?.dispose();
+    }, [camera, canvas]);
+
+    useEffect(() => {
+        if (!orbitControlsRef.current) return;
+        orbitControlsRef.current.enabled = enableControls;
+        console.log(`Set enabled to ${orbitControlsRef.current.enabled}`);
+    }, [enableControls]);
+
     return (
         <div style={{ height: '100vh', ...style }} className={className} onMouseMove={handleDomMove}>
-            <Canvas
-                camera={{ position: [3, 3, 4] }}
-                ref={canvasRef}
-                onCreated={event => {
-                    cameraRef.current = event.camera;
-                }}
-            >
+            <Canvas camera={camera} ref={element => setCanvas(element)} onCreated={event => setCamera(event.camera)}>
                 {sceneGlobals}
                 <group
-                    onPointerDown={event => {
-                        handleThreeDown(event);
-                        console.log(event.point.clone().project(cameraRef.current!));
-                    }}
+                    onPointerDown={handleThreeDown}
                     onPointerMove={handleThreeMove}
                     onPointerLeave={handleThreeLeave}
                     onPointerMissed={handleThreeMissed}

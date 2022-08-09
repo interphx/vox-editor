@@ -109,11 +109,6 @@ export class SimpleActionHistory<State, Action, Snapshot> implements ActionHisto
         const startingActionIndex = fromPositionInclusive - 1;
         const endingActionIndex = toPositionInclusive - 1;
 
-        /*console.log(
-            `Initial timeline (${this.position}): ${this.timeline.map((num, index) =>
-                this.position === index + 1 ? `${num}^` : String(num)
-            )}`
-        );*/
         if (startingActionIndex < 0) {
             const initialPosition = this.getCurrentPosition();
             this.goTo(toPositionInclusive);
@@ -126,12 +121,6 @@ export class SimpleActionHistory<State, Action, Snapshot> implements ActionHisto
             const combined = combine(actionsToCollapse);
             this.timeline.splice(startingActionIndex, endingActionIndex + 1 - startingActionIndex, combined);
         }
-        /*console.log(
-            `Final timeline (${this.position}): ${this.timeline.map((num, index) =>
-                this.position === index + 1 ? `${num}^` : String(num)
-            )}`
-        );*/
-
         const finalActionCount = this.timeline.length;
 
         // Move all snapshots the same amount. Or just drop snapshots after the collapsed position?

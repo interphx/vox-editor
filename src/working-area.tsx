@@ -91,6 +91,7 @@ export const WorkingArea = observer(function WorkingArea() {
                 onToolSelect={setToolId}
                 selectedToolId={toolId}
                 gizmos={interactionGizmos}
+                enableControls={!interactionActive}
                 actions={
                     <ActionBar>
                         {Object.entries(tools).map(([itemId, tool], index) => (

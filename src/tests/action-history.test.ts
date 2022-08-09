@@ -192,11 +192,6 @@ describe('SimpleHistory', () => {
         history.undo();
 
         history.collapse(a, b, sum);
-        /*console.log('>>>>>', (history as any).position, (history as any).timeline, (history as any).snapshots.data);
-        history.redo();
-        idealHistory.redo();
-        expect(history.getCurrent().count).toBe(3);
-        expect(idealHistory.getCurrent().count).toBe(3);*/
 
         expectHistoriesEqual(history, idealHistory);
     });
@@ -219,37 +214,7 @@ describe('SimpleHistory', () => {
         history.undo();
 
         history.collapse(a, b, sum);
-        /*console.log('>>>>>', (history as any).position, (history as any).timeline, (history as any).snapshots.data);
-        history.redo();
-        idealHistory.redo();
-        expect(history.getCurrent().count).toBe(3);
-        expect(idealHistory.getCurrent().count).toBe(3);*/
 
-        //expect(idealHistory.getCurrent().count).toBe(4);
-        //expect(history.getCurrent().count).toBe(4);
         expectHistoriesEqual(history, idealHistory);
     });
-
-    /*
-    it.each(createTestHistories())('collapses a previous part of the history', history => {
-        history.apply(1);
-        const a = history.getCurrentPosition();
-        history.apply(1);
-        const b = history.getCurrentPosition();
-        history.apply(1);
-        expect(history.getCurrent().count).toBe(3);
-        expect(history.size()).toBe(3);
-
-        history.collapse(a, b, sum);
-
-        // The history size should have reduced, but the current state should not be affected
-        expect(history.size()).toBe(2);
-        expect(history.getCurrent().count).toBe(3);
-        expect(history.canRedo()).toBe(false);
-        history.undo();
-        expect(history.getCurrent().count).toBe(2);
-
-        history.undo();
-        expect(history.getCurrent().count).toBe(0);
-    });*/
 });
