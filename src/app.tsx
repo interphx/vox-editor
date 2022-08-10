@@ -1,4 +1,4 @@
-import { WorkingArea } from './working-area';
+import { WorkingArea } from './ui/working-area';
 
 function App() {
     return <WorkingArea />;

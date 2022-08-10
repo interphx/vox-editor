@@ -1,5 +1,6 @@
 import { Canvas, ThreeEvent } from '@react-three/fiber';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import styled from 'styled-components';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { OrbitControls } from '../controls/orbit-gizmo-controls';
 import { UiColor } from '../design';
@@ -23,11 +24,10 @@ export function View3d(props: {
     onDown: (event: PointerInteractionEvent) => void;
     onMove: (event: PointerInteractionEvent) => void;
     onToolSelect: (tool: ToolId) => void;
-    debugLines: readonly string[];
     gizmos: readonly Gizmo[];
     enableControls: boolean;
 }) {
-    const { onDown, onMove, meshes, debugLines, enableControls, gizmos, actions, style, className } = props;
+    const { onDown, onMove, meshes, enableControls, gizmos, actions, style, className } = props;
 
     // These are intentionally states and not refs, so that their changes
     // trigger re-rendering.
@@ -131,13 +131,18 @@ export function View3d(props: {
     }, [enableControls]);
 
     return (
-        <div
-            style={{ height: '100vh', position: 'relative', ...style }}
+        <Container
+            style={style}
             className={className}
             onMouseMoveCapture={handleDomMove}
             onContextMenuCapture={event => event.preventDefault()}
         >
-            <Canvas camera={camera} ref={element => setCanvas(element)} onCreated={event => setCamera(event.camera)}>
+            <Canvas
+                frameloop="always"
+                camera={camera}
+                ref={element => setCanvas(element)}
+                onCreated={event => setCamera(event.camera)}
+            >
                 {sceneGlobals}
                 <group
                     onPointerDown={handleThreeDown}
@@ -152,35 +157,15 @@ export function View3d(props: {
             {gizmos2d.map((gizmo, index) => (
                 <Gizmo2dView key={index} gizmo={gizmo} />
             ))}
-            {/* <Gizmo2dView
-                gizmo={{
-                    type: '2d-arrow',
-                    start: { x: 0, y: 0 },
-                    end: { x: 0, y: 0.5 },
-                    color: 'lime'
-                }}
-            /> */}
-            {/* <Gizmo2dView gizmo={{ type: '2d-dot', pos: { x: -0.5, y: -0.5 }, color: 'cyan' }} />
-            <Gizmo2dView gizmo={{ type: '2d-dot', pos: { x: 0, y: 0 }, color: 'cyan' }} />
-            <Gizmo2dView gizmo={{ type: '2d-dot', pos: { x: 0.5, y: 0.5 }, color: 'cyan' }} /> */}
-            {/* <svg style={{ position: 'absolute', width: '100%', height: '100%', top: 0, left: 0 }} viewBox="-1 -1 2 2">
-                <line x1={-0.5} y1={-0.5} x2={0.5} y2={0.5} stroke={'red'} strokeWidth="0.01" />
-            </svg> */}
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '15px',
-                    left: '15px',
-                    color: 'white',
-                    userSelect: 'none',
-                    pointerEvents: 'none'
-                }}
-            >
-                {debugLines.map(line => (
-                    <div key={line}>{line}</div>
-                ))}
-            </div>
             {actions}
-        </div>
+        </Container>
     );
 }
+
+const Container = styled.div`
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+    min-width: 0;
+    min-height: 0;
+`;

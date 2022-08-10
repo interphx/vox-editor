@@ -16,7 +16,8 @@ export function useInteraction(toolId: ToolId, store: RootStore) {
             const history = store.getHistory();
             const checkpoint = history.getCurrentPosition();
 
-            const interaction = tools[toolId](event, store, setInteractionGizmos);
+            const tool = tools.find(({ id }) => id === toolId)?.tool;
+            const interaction = tool?.(event, store, setInteractionGizmos);
             if (!interaction) return;
 
             interactionRef.current = interaction;
@@ -27,7 +28,13 @@ export function useInteraction(toolId: ToolId, store: RootStore) {
                 setInteractionActive(false);
                 setInteractionGizmos([]);
                 interactionRef.current = null;
-                history.collapse(checkpoint + 1, history.getCurrentPosition(), actions => ({ type: 'Batch', actions }));
+                if (history.getCurrentPosition() !== checkpoint) {
+                    // Make sure the tool use can be undone in one go
+                    history.collapse(checkpoint + 1, history.getCurrentPosition(), actions => ({
+                        type: 'Batch',
+                        actions
+                    }));
+                }
                 window.removeEventListener('pointerup', finish);
                 window.removeEventListener('blur', finish);
             };

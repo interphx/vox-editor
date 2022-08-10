@@ -1,21 +1,23 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { observer } from 'mobx-react-lite';
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { useInteraction } from './hooks/use-interaction';
-import { useRootStore } from './hooks/use-root-store';
-import { ToolId, tools } from './tools';
-import { ActionBar } from './ui/action-bar';
-import { BlockTypePicker } from './ui/color-picker';
-import { PointerInteractionEvent } from './ui/pointer-interaction-event';
-import { StructureTreeView } from './ui/structure-tree-view';
-import { ToolButton } from './ui/tool-button';
-import { View3d } from './ui/view-3d';
-import { vecToString } from './utilities/vector';
+import { UiColor } from '../design';
+import { useInteraction } from '../hooks/use-interaction';
+import { useRootStore } from '../hooks/use-root-store';
+import { ToolId, tools } from '../tools';
+import { ActionBar } from './action-bar';
+import { BlockTypePicker } from './color-picker';
+import { DebugView } from './debug-view';
+import { PointerInteractionEvent } from './pointer-interaction-event';
+import { ProjectActions } from './project-actions';
+import { StructureTreeView } from './structure-tree-view';
+import { ToolButton } from './tool-button';
+import { View3d } from './view-3d';
 
 export const WorkingArea = observer(function WorkingArea() {
     const rootStore = useRootStore();
     const projectHistory = rootStore.getHistory();
-    const [latestEvent, setLatestEvent] = useState<PointerInteractionEvent | null>(null);
     const [toolId, setToolId] = useState<ToolId>('extruder');
     const { startInteraction, updateInteraction, interactionActive, interactionGizmos } = useInteraction(
         toolId,
@@ -56,29 +58,33 @@ export const WorkingArea = observer(function WorkingArea() {
         return () => window.removeEventListener('keydown', undoListener, { capture: true });
     }, [projectHistory]);
 
+    const updateDebugData = useCallback(
+        (event: PointerInteractionEvent) => {
+            rootStore.updateDebugData({
+                face: event.face,
+                threeObject: event.object,
+                worldPoint: event.worldPoint,
+                viewportPoint: event.viewportPoint
+            });
+        },
+        [rootStore]
+    );
+
     const handleDown = useCallback(
         (event: PointerInteractionEvent) => {
-            setLatestEvent(event);
+            updateDebugData(event);
             startInteraction(event);
         },
-        [startInteraction]
+        [startInteraction, updateDebugData]
     );
 
     const handleMove = useCallback(
         (event: PointerInteractionEvent) => {
-            setLatestEvent(event);
+            updateDebugData(event);
             updateInteraction(event);
         },
-        [updateInteraction]
+        [updateDebugData, updateInteraction]
     );
-
-    const debugLines = [
-        latestEvent?.face ? `Face: ${vecToString(latestEvent.face.normal)}` : `Face:   -`,
-        latestEvent?.object ? `Object: ${latestEvent.object.id}` : `Object:   -`,
-        latestEvent?.worldPoint ? `Point: ${vecToString(latestEvent.worldPoint)}` : `Point:   -`,
-        latestEvent?.viewportPoint ? `Pointer: ${vecToString(latestEvent.viewportPoint)}` : `Pointer:   -`,
-        interactionActive ? `Tool: ${toolId} (active)` : `Tool ${toolId}`
-    ];
 
     return (
         <Container>
@@ -86,7 +92,6 @@ export const WorkingArea = observer(function WorkingArea() {
                 style={{ flex: '1 1 1px' }}
                 onDown={handleDown}
                 onMove={handleMove}
-                debugLines={debugLines}
                 meshes={project.getMeshes()}
                 onToolSelect={setToolId}
                 selectedToolId={toolId}
@@ -94,21 +99,19 @@ export const WorkingArea = observer(function WorkingArea() {
                 enableControls={!interactionActive}
                 actions={
                     <ActionBar>
-                        {Object.entries(tools).map(([itemId, tool], index) => (
-                            <ToolButton
-                                key={itemId}
-                                active={itemId === toolId}
-                                onClick={() => setToolId(itemId as ToolId)}
-                            >
-                                {itemId.toUpperCase().charAt(0)}
+                        {tools.map(({ id, icon }) => (
+                            <ToolButton key={id} title={id} active={id === toolId} onClick={() => setToolId(id)}>
+                                <FontAwesomeIcon icon={icon} />
                             </ToolButton>
                         ))}
                         <BlockTypePicker />
                     </ActionBar>
                 }
             />
-            <Sidebar style={{ width: '200px', flex: '0 0 200px' }}>
+            <Sidebar>
                 <StructureTreeView />
+                <DebugView />
+                <ProjectActions />
             </Sidebar>
         </Container>
     );
@@ -122,4 +125,9 @@ const Container = styled.div`
 const Sidebar = styled.div`
     display: flex;
     flex-direction: column;
+    width: 250px;
+    flex: 0 0 250px;
+    max-height: 100vh;
+    box-sizing: border-box;
+    background: ${UiColor.sidebar};
 `;

@@ -7,5 +7,3 @@ export interface OrderedMap<Key, Value> {
     nextEntry(afterKey: Key): readonly [Key, Value] | undefined;
     previousEntry(beforeKey: Key): readonly [Key, Value] | undefined;
 }
-
-class BTreeMap {}

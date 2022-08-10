@@ -1,11 +1,14 @@
-import { action, makeObservable } from 'mobx';
+import { action, makeObservable, observable } from 'mobx';
 import { Structure } from '../structure';
 import { BlockId, StructureId, StructureWithChildren } from '../structure/structure';
 import { Palette } from './palette';
 
 export class ProjectStore {
+    private lastOperationId = 0;
+
     constructor(private readonly root: Structure & StructureWithChildren, private readonly palette: Palette) {
-        makeObservable<ProjectStore>(this, {
+        makeObservable<ProjectStore, 'lastOperationId'>(this, {
+            lastOperationId: observable.ref,
             addStructure: action,
             removeStructure: action,
             setBlock: action
@@ -17,10 +20,12 @@ export class ProjectStore {
     }
 
     addStructure(structure: Structure) {
+        this.lastOperationId += 1;
         this.root.addChild(structure);
     }
 
     removeStructure(structureId: StructureId) {
+        this.lastOperationId += 1;
         this.root.removeChild(structureId);
     }
 
@@ -29,6 +34,11 @@ export class ProjectStore {
     }
 
     getMeshes(): JSX.Element[] {
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this.lastOperationId;
+
+        // TODO: Generate optimized meshes consisting
+        // only of visible planes
         const meshes: JSX.Element[] = [];
 
         for (const [{ x, y, z }, blockId] of Array.from(this.root.blocks())) {
@@ -57,6 +67,7 @@ export class ProjectStore {
         const structure = this.root.findChild(structureId);
         if (!structure) throw new Error(`Structure with id ${structureId} is not found`);
         if (!structure.isMutable()) throw new Error(`Structure with id ${structureId} is not mutable`);
+        this.lastOperationId += 1;
         structure.set(x, y, z, value);
     }
 }

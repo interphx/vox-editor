@@ -1,4 +1,5 @@
 import { action, autorun, makeObservable, observable, runInAction } from 'mobx';
+import { Face, Object3D, Vector2, Vector3 } from 'three';
 import { GroupStructure, SimpleStructure, StructureId } from '../structure';
 import { BlockId, Structure } from '../structure/structure';
 import { ActionHistory, SimpleActionHistory } from '../utilities/action-history';
@@ -7,17 +8,31 @@ import { Palette } from './palette';
 import { ProjectStore } from './project-store';
 
 export class RootStore {
+    public debugData: {
+        face: Face | null;
+        threeObject: Object3D | null;
+        worldPoint: Vector3 | null;
+        viewportPoint: Vector2 | null;
+    } = {
+        face: null,
+        threeObject: null,
+        worldPoint: null,
+        viewportPoint: null
+    };
+
     constructor(
         private selectedStructureId: StructureId,
         private selectedBlockId: BlockId,
         private history: ActionHistory<ProjectStore, Action>
     ) {
         makeObservable<RootStore, 'selectedStructureId' | 'selectedBlockId' | 'history' | 'ensureValidity'>(this, {
+            debugData: observable.ref,
             selectedStructureId: observable.ref,
             selectedBlockId: observable.ref,
             history: observable.ref,
             selectStructure: action,
             selectBlockType: action,
+            updateDebugData: action,
             ensureValidity: action
         });
 
@@ -50,6 +65,10 @@ export class RootStore {
         this.selectedBlockId = blockId;
     }
 
+    updateDebugData(data: typeof this['debugData']) {
+        this.debugData = data;
+    }
+
     getHistory() {
         return this.history;
     }
@@ -68,7 +87,7 @@ export class RootStore {
 }
 
 export function createDefaultRootStore() {
-    const firstStructure = SimpleStructure.fromSingleBlock('structure0', 0, 0, 0, 1);
+    const firstStructure = SimpleStructure.fromSingleBlock('Layer 1', 0, 0, 0, 1);
     const rootStructure = new GroupStructure(':root:', true, [firstStructure]);
     const defaultPalette = Palette.fromColorList(['orange', 'cyan', 'green', 'pink']);
     const initialProjectState = new ProjectStore(rootStructure, defaultPalette);

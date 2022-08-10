@@ -10,7 +10,8 @@ export const ToolButton = styled.button<{ readonly active: boolean }>`
     width: ${UiSize.ML};
     padding: 0;
     margin: 0;
-    color: ${UiColor.text};
+    font-size: 1.5em;
+    color: ${props => (props.active ? UiColor.active : UiColor.inactive)};
     cursor: pointer;
     box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.25);
 

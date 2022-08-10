@@ -1,7 +1,10 @@
+import { faPalette } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { observer } from 'mobx-react-lite';
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useRootStore } from '../hooks/use-root-store';
+import { shouldUseLightForeground } from '../utilities/color';
 import { AspectRatioContainer } from './aspect-ratio';
 import { ToolButton } from './tool-button';
 
@@ -10,28 +13,28 @@ export const BlockTypePicker = observer(function ColorPicker() {
     const colorId = store.getSelectedBlockId();
     const project = store.getHistory().getCurrent();
     const palette = project.getPalette();
+    const color = palette.getById(colorId)!.color;
     const [open, setOpen] = useState(false);
     return (
         <Container>
             <ToolButton
                 active={false}
                 onClick={() => setOpen(!open)}
-                style={{ flex: '0 0 auto', background: palette.getById(colorId)!.color }}
+                title="Palette"
+                style={{
+                    flex: '0 0 auto',
+                    background: color,
+                    color: shouldUseLightForeground(color) ? 'rgba(255, 255, 255, 0.8)' : 'rgba(0, 0, 0, 0.8)'
+                }}
             >
-                P
+                <FontAwesomeIcon icon={faPalette} />
             </ToolButton>
             {open && (
                 <Colors>
                     {palette.getAll().map(({ id, color, name }) => (
-                        <Item
-                            key={id}
-                            height="100%"
-                            aspectRatio={1}
-                            style={{ background: color }}
-                            onClick={() => store.selectBlockType(id)}
-                        >
-                            C
-                        </Item>
+                        <AspectRatioContainer key={id} height="100%" aspectRatio={1}>
+                            <Item style={{ background: color }} onClick={() => store.selectBlockType(id)}></Item>
+                        </AspectRatioContainer>
                     ))}
                 </Colors>
             )}
@@ -53,4 +56,11 @@ const Colors = styled.div`
     align-items: stretch;
 `;
 
-const Item = styled(AspectRatioContainer)``;
+const Item = styled.button`
+    border: 0;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+`;
