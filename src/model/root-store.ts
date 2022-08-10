@@ -37,6 +37,7 @@ export class RootStore {
         });
 
         autorun(() => {
+            console.log('Autorun called');
             this.ensureValidity();
         });
     }

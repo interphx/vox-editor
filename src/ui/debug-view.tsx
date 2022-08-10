@@ -61,9 +61,13 @@ const Title = styled.th`
     font-weight: normal;
     color: ${UiColor.text};
     padding: 0;
+    font-size: 0.8em;
+    vertical-align: middle;
 `;
 
 const Value = styled.td`
     text-align: right;
     padding: 0;
+    font-size: 0.8em;
+    vertical-align: middle;
 `;

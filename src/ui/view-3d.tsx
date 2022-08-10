@@ -1,9 +1,9 @@
 import { Canvas, ThreeEvent } from '@react-three/fiber';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
-import { OrbitControls } from '../controls/orbit-gizmo-controls';
 import { UiColor } from '../design';
+import { useOrbitControls } from '../hooks/use-orbit-comtrols';
 import { Gizmo, isGizmo2d, isGizmo3d } from '../model/gizmo';
 import { ToolId } from '../tools';
 import { Gizmo2dView } from './gizmo-2d-view';
@@ -28,10 +28,12 @@ export function View3d(props: {
     const [canvas, setCanvas] = useState<HTMLCanvasElement | null>(null);
     const [camera, setCamera] = useState<PerspectiveCamera | OrthographicCamera>(() => {
         const camera = new PerspectiveCamera();
-        camera.position.set(6, 6, 8);
+        camera.position.set(8, 8, 10);
         camera.lookAt(0, 0, 0);
         return camera;
     });
+    useOrbitControls(canvas, camera, enableControls);
+
     const latestHoveredObjectData = useRef<{
         object: Object3D | null;
         face: Face | null;
@@ -111,19 +113,6 @@ export function View3d(props: {
         latestHoveredObjectData.current.worldPoint = null;
     }, []);
 
-    const orbitControlsRef = useRef<OrbitControls | null>(null);
-    useEffect(() => {
-        if (!canvas) return () => {};
-        const controls = new OrbitControls(camera, canvas);
-        orbitControlsRef.current = controls;
-        return () => orbitControlsRef.current?.dispose();
-    }, [camera, canvas]);
-
-    useEffect(() => {
-        if (!orbitControlsRef.current) return;
-        orbitControlsRef.current.enabled = enableControls;
-    }, [enableControls]);
-
     return (
         <Container
             style={style}
@@ -158,6 +147,7 @@ export function View3d(props: {
 
 const Container = styled.div`
     height: 100vh;
+    flex: 1 1 1px;
     position: relative;
     overflow: hidden;
     min-width: 0;

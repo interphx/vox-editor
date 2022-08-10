@@ -89,7 +89,6 @@ export const Editor = observer(function WorkingArea() {
     return (
         <Container>
             <View3d
-                style={{ flex: '1 1 1px' }}
                 onDown={handleDown}
                 onMove={handleMove}
                 meshes={project.getMeshes()}
