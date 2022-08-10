@@ -88,6 +88,18 @@ export class SimpleStructure implements Structure, MutableStructure {
         return result;
     }
 
+    static fromCuboid(id: StructureId, min: Vec3Like, max: Vec3Like, value: BlockId): SimpleStructure {
+        const result = SimpleStructure.empty(id);
+        for (let z = min.z; z <= max.z; ++z) {
+            for (let y = min.y; y <= max.y; ++y) {
+                for (let x = min.x; x <= max.x; ++x) {
+                    result.set(x, y, z, value);
+                }
+            }
+        }
+        return result;
+    }
+
     static fromExportedData(data: SimpleExportedData): SimpleStructure {
         const blocks = new Vec3Dictionary<BlockId>();
         for (const [posString, blockId] of Object.entries(data.blocks)) {

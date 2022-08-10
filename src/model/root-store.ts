@@ -92,7 +92,7 @@ export class RootStore {
 }
 
 export function createDefaultRootStore() {
-    const firstStructure = SimpleStructure.fromSingleBlock('Layer 1', 0, 0, 0, 1);
+    const firstStructure = SimpleStructure.fromCuboid('Layer 1', { x: -2, y: 0, z: -2 }, { x: 2, y: 0, z: 2 }, 1);
     const rootStructure = new GroupStructure(':root:', true, [firstStructure]);
     const defaultPalette = Palette.fromColorList([
         '#F29559',
