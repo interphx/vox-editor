@@ -5,7 +5,7 @@ import { BlockId, Structure } from '../structure/structure';
 import { ActionHistory, SimpleActionHistory } from '../utilities/action-history';
 import { Action } from './action';
 import { Palette } from './palette';
-import { ProjectStore } from './project-store';
+import { ProjectExportedData, ProjectStore } from './project-store';
 
 export class RootStore {
     public debugData: {
@@ -73,6 +73,11 @@ export class RootStore {
         return this.history;
     }
 
+    importProject(projectData: ProjectExportedData) {
+        const project = ProjectStore.fromExportedData(projectData);
+        this.history = createHistory(project);
+    }
+
     private ensureValidity() {
         const project = this.getHistory().getCurrent();
         const root = project.getRoot();
@@ -91,14 +96,18 @@ export function createDefaultRootStore() {
     const rootStructure = new GroupStructure(':root:', true, [firstStructure]);
     const defaultPalette = Palette.fromColorList(['orange', 'cyan', 'green', 'pink']);
     const initialProjectState = new ProjectStore(rootStructure, defaultPalette);
-    const history = new SimpleActionHistory(
+    const history = createHistory(initialProjectState);
+    return new RootStore('Layer 1', 1, history);
+}
+
+function createHistory(initialProjectState: ProjectStore) {
+    return new SimpleActionHistory(
         initialProjectState,
         applyAction,
         project => project.clone(),
         (_project, snapshot) => snapshot.clone(),
         5
     );
-    return new RootStore('structure0', 1, history);
 }
 
 function applyAction(project: ProjectStore, action: Action): ProjectStore {

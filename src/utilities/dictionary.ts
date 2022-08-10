@@ -1,5 +1,6 @@
-const hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
-
+/**
+ * An alternative to Map with customizable hash and comparison functions.
+ */
 export class Dictionary<Key, Value> {
     private pairCount: number = 0;
 
@@ -118,5 +119,6 @@ export class Dictionary<Key, Value> {
     }
 }
 
+const hasOwn = Object.prototype.hasOwnProperty.call.bind(Object.prototype.hasOwnProperty);
 const defaultEquals = Object.is;
 const defaultHash = (value: unknown) => String(value);

@@ -1,13 +1,10 @@
 import { Vec3Like } from '../utilities/vec3-dictionary';
+import { StructureExportedData } from './exported-data';
 
 export type StructureId = string;
 export type BlockId = number;
 
 export interface StructureSnapshot {}
-
-export function restoreStructureSnapshot(snapshot: StructureSnapshot): Structure {
-    throw new Error(`Not implemented`);
-}
 
 export interface Structure {
     readonly id: StructureId;
@@ -21,6 +18,7 @@ export interface Structure {
     snapshot(): StructureSnapshot;
     setVisibility(visible: boolean): void;
     isOrContains(id: StructureId): boolean;
+    export(): StructureExportedData;
 }
 
 export interface MutableStructure extends Structure {

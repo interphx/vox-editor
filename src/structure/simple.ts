@@ -1,5 +1,6 @@
 import { action, makeObservable, observable } from 'mobx';
 import { Vec3Dictionary, Vec3Like } from '../utilities/vec3-dictionary';
+import { SimpleExportedData } from './exported-data';
 import {
     BlockId,
     MutableStructure,
@@ -64,6 +65,19 @@ export class SimpleStructure implements Structure, MutableStructure {
         return this.id === id;
     }
 
+    export(): SimpleExportedData {
+        return {
+            type: 'simple',
+            id: this.id,
+            visible: this.visible,
+            blocks: Object.fromEntries(
+                Array.from(this.data.entries()).map(
+                    ([pos, blockId]) => [`${pos.x};${pos.y};${pos.z}`, blockId] as const
+                )
+            )
+        };
+    }
+
     static empty(id: StructureId): SimpleStructure {
         return new SimpleStructure(id, true, new Vec3Dictionary());
     }
@@ -72,5 +86,21 @@ export class SimpleStructure implements Structure, MutableStructure {
         const result = SimpleStructure.empty(id);
         result.set(x, y, z, value);
         return result;
+    }
+
+    static fromExportedData(data: SimpleExportedData): SimpleStructure {
+        const blocks = new Vec3Dictionary<BlockId>();
+        for (const [posString, blockId] of Object.entries(data.blocks)) {
+            const [x, y, z] = posString.split(';');
+            blocks.set(
+                {
+                    x: Number(x),
+                    y: Number(y),
+                    z: Number(z)
+                },
+                blockId
+            );
+        }
+        return new SimpleStructure(data.id, data.visible, blocks);
     }
 }

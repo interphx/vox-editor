@@ -1,5 +1,7 @@
 import { action, makeObservable, observable } from 'mobx';
 import { Vec3Like } from '../utilities/vec3-dictionary';
+import { createStructureFromExportedData } from './create-from-data';
+import { GroupExportedData } from './exported-data';
 import {
     BlockId,
     MutableStructure,
@@ -96,6 +98,15 @@ export class GroupStructure implements Structure, StructureWithChildren {
         return this.id === id || this.children.some(child => child.isOrContains(id));
     }
 
+    export(): GroupExportedData {
+        return {
+            type: 'group',
+            id: this.id,
+            visible: this.visible,
+            children: this.children.map(child => child.export())
+        };
+    }
+
     private flatten() {
         const collect = (structure: Structure): readonly Structure[] => {
             if (!structure.canHaveChildren()) return [];
@@ -106,5 +117,13 @@ export class GroupStructure implements Structure, StructureWithChildren {
 
     private idExists(id: StructureId): boolean {
         return this.flatten().some(structure => structure.id === id);
+    }
+
+    static fromExportedData(data: GroupExportedData) {
+        return new GroupStructure(
+            data.id,
+            data.visible,
+            data.children.map(childData => createStructureFromExportedData(childData))
+        );
     }
 }

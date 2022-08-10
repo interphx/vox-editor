@@ -1,3 +1,6 @@
+/**
+ * A non-optimized implementation of an ordered map.
+ */
 export class NaiveOrderedMap<T> {
     private readonly data: Map<number, T> = new Map();
 

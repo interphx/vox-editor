@@ -1,7 +1,11 @@
 import { action, makeObservable, observable } from 'mobx';
 import { Structure } from '../structure';
+import { createStructureFromExportedData } from '../structure/create-from-data';
+import { StructureExportedData } from '../structure/exported-data';
 import { BlockId, StructureId, StructureWithChildren } from '../structure/structure';
-import { Palette } from './palette';
+import { Palette, PaletteExportedData } from './palette';
+
+export type ProjectExportedData = { readonly root: StructureExportedData; readonly palette: PaletteExportedData };
 
 export class ProjectStore {
     private lastOperationId = 0;
@@ -69,6 +73,21 @@ export class ProjectStore {
         if (!structure.isMutable()) throw new Error(`Structure with id ${structureId} is not mutable`);
         this.lastOperationId += 1;
         structure.set(x, y, z, value);
+    }
+
+    export() {
+        return {
+            root: this.root.export(),
+            palette: this.palette.export()
+        };
+    }
+
+    static fromExportedData(data: ProjectExportedData): ProjectStore {
+        const root = createStructureFromExportedData(data.root);
+        if (!root.canHaveChildren()) {
+            throw new Error(`Root must be a container structure`);
+        }
+        return new ProjectStore(root, Palette.fromExportedData(data.palette));
     }
 }
 

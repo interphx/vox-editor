@@ -4,6 +4,10 @@ type ColorDefinition = {
     readonly color: string;
 };
 
+export type PaletteExportedData = {
+    readonly [id: string]: ColorDefinition;
+};
+
 export class Palette {
     private constructor(private readonly colorById: Map<number, ColorDefinition>) {}
 
@@ -15,7 +19,11 @@ export class Palette {
         return Array.from(this.colorById.values());
     }
 
-    static fromColorList(colors: readonly string[]) {
+    export(): PaletteExportedData {
+        return Object.fromEntries(this.colorById);
+    }
+
+    static fromColorList(colors: readonly string[]): Palette {
         const colorById = new Map<number, ColorDefinition>();
         for (let i = 0; i < colors.length; ++i) {
             // id = 0 means empty space, so we start at 1
@@ -25,5 +33,13 @@ export class Palette {
             colorById.set(id, { id, name, color });
         }
         return new Palette(colorById);
+    }
+
+    static fromExportedData(data: PaletteExportedData): Palette {
+        const map = new Map<number, ColorDefinition>();
+        for (const definition of Object.values(data)) {
+            map.set(definition.id, { ...definition });
+        }
+        return new Palette(map);
     }
 }
