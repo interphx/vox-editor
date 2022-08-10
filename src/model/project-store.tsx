@@ -7,11 +7,11 @@ import { Palette, PaletteExportedData } from './palette';
 
 export type ProjectExportedData = { readonly root: StructureExportedData; readonly palette: PaletteExportedData };
 
-export class ProjectStore {
+export class Project {
     private lastOperationId = 0;
 
     constructor(private readonly root: Structure & StructureWithChildren, private readonly palette: Palette) {
-        makeObservable<ProjectStore, 'lastOperationId'>(this, {
+        makeObservable<Project, 'lastOperationId'>(this, {
             lastOperationId: observable.ref,
             addStructure: action,
             removeStructure: action,
@@ -20,7 +20,7 @@ export class ProjectStore {
     }
 
     clone() {
-        return new ProjectStore(this.root.clone(), this.palette);
+        return new Project(this.root.clone(), this.palette);
     }
 
     addStructure(structure: Structure) {
@@ -82,12 +82,12 @@ export class ProjectStore {
         };
     }
 
-    static fromExportedData(data: ProjectExportedData): ProjectStore {
+    static fromExportedData(data: ProjectExportedData): Project {
         const root = createStructureFromExportedData(data.root);
         if (!root.canHaveChildren()) {
             throw new Error(`Root must be a container structure`);
         }
-        return new ProjectStore(root, Palette.fromExportedData(data.palette));
+        return new Project(root, Palette.fromExportedData(data.palette));
     }
 }
 
@@ -101,4 +101,3 @@ function createCubeNode(x: number, y: number, z: number, color: string): JSX.Ele
 }
 
 const boxGeo = <boxGeometry args={[1, 1, 1]} />;
-//const testMaterial = <meshPhongMaterial color={'orange'} />;

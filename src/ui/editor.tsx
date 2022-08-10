@@ -15,7 +15,7 @@ import { StructureTreeView } from './structure-tree-view';
 import { ToolButton } from './tool-button';
 import { View3d } from './view-3d';
 
-export const WorkingArea = observer(function WorkingArea() {
+export const Editor = observer(function WorkingArea() {
     const rootStore = useRootStore();
     const projectHistory = rootStore.getHistory();
     const [toolId, setToolId] = useState<ToolId>('extruder');

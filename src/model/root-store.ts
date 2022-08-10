@@ -5,7 +5,7 @@ import { BlockId, Structure } from '../structure/structure';
 import { ActionHistory, SimpleActionHistory } from '../utilities/action-history';
 import { Action } from './action';
 import { Palette } from './palette';
-import { ProjectExportedData, ProjectStore } from './project-store';
+import { Project, ProjectExportedData } from './project-store';
 
 export class RootStore {
     public debugData: {
@@ -23,7 +23,7 @@ export class RootStore {
     constructor(
         private selectedStructureId: StructureId,
         private selectedBlockId: BlockId,
-        private history: ActionHistory<ProjectStore, Action>
+        private history: ActionHistory<Project, Action>
     ) {
         makeObservable<RootStore, 'selectedStructureId' | 'selectedBlockId' | 'history' | 'ensureValidity'>(this, {
             debugData: observable.ref,
@@ -74,7 +74,7 @@ export class RootStore {
     }
 
     importProject(projectData: ProjectExportedData) {
-        const project = ProjectStore.fromExportedData(projectData);
+        const project = Project.fromExportedData(projectData);
         this.history = createHistory(project);
     }
 
@@ -94,13 +94,29 @@ export class RootStore {
 export function createDefaultRootStore() {
     const firstStructure = SimpleStructure.fromSingleBlock('Layer 1', 0, 0, 0, 1);
     const rootStructure = new GroupStructure(':root:', true, [firstStructure]);
-    const defaultPalette = Palette.fromColorList(['orange', 'cyan', 'green', 'pink']);
-    const initialProjectState = new ProjectStore(rootStructure, defaultPalette);
+    const defaultPalette = Palette.fromColorList([
+        '#F29559',
+        '#77F046',
+        '#EEEEEE',
+
+        '#F2D492',
+        '#26C485',
+        '#279AF1',
+
+        '#FB5012',
+        '#14591D',
+        '#044389',
+
+        '#D7263D',
+        '#FF579F',
+        '#594236'
+    ]);
+    const initialProjectState = new Project(rootStructure, defaultPalette);
     const history = createHistory(initialProjectState);
     return new RootStore('Layer 1', 1, history);
 }
 
-function createHistory(initialProjectState: ProjectStore) {
+function createHistory(initialProjectState: Project) {
     return new SimpleActionHistory(
         initialProjectState,
         applyAction,
@@ -110,7 +126,7 @@ function createHistory(initialProjectState: ProjectStore) {
     );
 }
 
-function applyAction(project: ProjectStore, action: Action): ProjectStore {
+function applyAction(project: Project, action: Action): Project {
     switch (action.type) {
         case 'SetBlock': {
             const { x, y, z } = action.position;

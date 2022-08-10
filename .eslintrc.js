@@ -8,7 +8,6 @@ module.exports = {
         'react-app/jest',
         'plugin:react/recommended',
         'prettier'
-        //'airbnb',
     ],
     parser: '@typescript-eslint/parser',
     parserOptions: {
@@ -20,7 +19,7 @@ module.exports = {
     },
     plugins: ['react', '@typescript-eslint'],
     rules: {
-        indent: 0,
+        'indent': 0,
         'quote-props': 0,
         'comma-spacing': 0,
         'linebreak-style': 0,
@@ -46,7 +45,7 @@ module.exports = {
         'react/jsx-one-expression-per-line': 0,
         'react/react-in-jsx-scope': 0,
         '@typescript-eslint/no-unused-vars': 1,
-        curly: ['warn', 'multi-line'],
+        'curly': ['warn', 'multi-line'],
         'object-shorthand': ['warn', 'always'],
         'arrow-body-style': ['warn', 'as-needed']
     }
