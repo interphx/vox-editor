@@ -4,16 +4,10 @@ import styled from 'styled-components';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { OrbitControls } from '../controls/orbit-gizmo-controls';
 import { UiColor } from '../design';
-import { Gizmo, isGizmo2d, isGizmo3d } from '../rendering/gizmo';
+import { Gizmo, isGizmo2d, isGizmo3d } from '../model/gizmo';
 import { ToolId } from '../tools';
 import { Gizmo2dView } from './gizmo-2d-view';
 import { PointerInteractionEvent } from './pointer-interaction-event';
-
-const sceneGlobals = [
-    <color key="bgcolor" attach="background" args={[new Color(UiColor.background)]} />,
-    <ambientLight key="ambientLight" intensity={0.2} />,
-    <directionalLight key="directionalLight" intensity={1} position={[-1, 2, 4]} />
-];
 
 export function View3d(props: {
     className?: string;
@@ -169,3 +163,9 @@ const Container = styled.div`
     min-width: 0;
     min-height: 0;
 `;
+
+const sceneGlobals = [
+    <color key="bgcolor" attach="background" args={[new Color(UiColor.background)]} />,
+    <ambientLight key="ambientLight" intensity={0.2} />,
+    <directionalLight key="directionalLight" intensity={1} position={[-1, 2, 4]} />
+];

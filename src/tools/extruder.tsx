@@ -1,6 +1,6 @@
 import { runInAction } from 'mobx';
 import { Vector2, Vector3 } from 'three';
-import { Gizmo } from '../rendering/gizmo';
+import { Gizmo } from '../model/gizmo';
 import { Arrow3d } from '../ui/arrow-3d';
 import { Tool } from '../ui/interaction';
 import { minBy } from '../utilities/array';

@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { RootStore } from '../rendering/root-store';
+import { RootStore } from '../model/root-store';
 import { RootContext } from './root-context';
 
 export function useRootStore(): RootStore {

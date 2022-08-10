@@ -18,5 +18,6 @@ export const UiColor = {
     separator: '#474747',
     inactive: '#858585',
     active: '#FFFFFF',
-    backgroundSelected: '#04395E'
+    backgroundSelected: '#04395E',
+    borderSelected: '#007fd4'
 };

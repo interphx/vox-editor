@@ -1,4 +1,4 @@
 import { createContext } from 'react';
-import { RootStore } from '../rendering/root-store';
+import { RootStore } from '../model/root-store';
 
 export const RootContext = createContext<RootStore | undefined>(undefined);

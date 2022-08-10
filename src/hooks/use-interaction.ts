@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react';
-import { Gizmo } from '../rendering/gizmo';
-import { RootStore } from '../rendering/root-store';
+import { Gizmo } from '../model/gizmo';
+import { RootStore } from '../model/root-store';
 import { ToolId, tools } from '../tools';
 import { Interaction } from '../ui/interaction';
 import { PointerInteractionEvent } from '../ui/pointer-interaction-event';

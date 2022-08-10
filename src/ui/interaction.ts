@@ -1,5 +1,5 @@
-import { Gizmo } from '../rendering/gizmo';
-import { RootStore } from '../rendering/root-store';
+import { Gizmo } from '../model/gizmo';
+import { RootStore } from '../model/root-store';
 import { PointerInteractionEvent } from './pointer-interaction-event';
 
 export interface Interaction {

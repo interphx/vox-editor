@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ArrowGizmo2d, DotGizmo2d, Gizmo2d, TextGizmo2d } from '../rendering/gizmo';
+import { ArrowGizmo2d, DotGizmo2d, Gizmo2d, TextGizmo2d } from '../model/gizmo';
 import { remap } from '../utilities/math';
 
 export function Gizmo2dView({ gizmo }: { gizmo: Gizmo2d }) {

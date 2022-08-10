@@ -100,7 +100,13 @@ const Item = styled.div<{ active: boolean }>`
     display: flex;
     flex-direction: row;
     background: ${props => (props.active ? UiColor.backgroundSelected : 'none')};
-    padding: ${UiSize.XS};
+    border-color: ${UiColor.borderSelected};
+    border-style: solid;
+    border-width: 0;
+    border-top-width: ${props => (props.active ? '1px' : '0')};
+    border-bottom-width: ${props => (props.active ? '1px' : '0')};
+    box-sizing: border-box;
+    padding: ${props => (props.active ? `calc(${UiSize.XS} - 1px)` : UiSize.XS)} ${UiSize.XS};
     font-size: ${UiSize.S};
     cursor: pointer;
 `;
