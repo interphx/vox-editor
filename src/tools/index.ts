@@ -2,15 +2,15 @@ import { eraser } from './eraser';
 import { extruder } from './extruder';
 import { pencil } from './pencil';
 
-import { faEraser, faPen, faPenRuler } from '@fortawesome/free-solid-svg-icons';
-/*
-export const tools = {
-    pencil,
-    extruder,
-    eraser
-};*/
+import { faEraser, faPen, faPenRuler, faUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
+import { cameraMovement } from './camera-movement';
 
 export const tools = [
+    {
+        id: 'camera-movement',
+        tool: cameraMovement,
+        icon: faUpDownLeftRight
+    },
     {
         id: 'pencil',
         tool: pencil,
