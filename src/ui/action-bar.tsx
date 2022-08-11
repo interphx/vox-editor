@@ -13,7 +13,7 @@ const Container = styled.div`
     bottom: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: flex-start;
     padding: ${UiSize.S};
     pointer-events: none;
     user-select: none;
