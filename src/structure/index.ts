@@ -1,4 +1,5 @@
-//export { CuboidStructure } from './cuboid';
+export { createStructureFromExportedData } from './create-from-data';
 export { GroupStructure } from './group';
 export { SimpleStructure } from './simple';
-export type { MutableStructure, Structure, StructureId } from './structure';
+export type { ContainerStructure as StructureWithChildren, MutableStructure, Structure } from './structure';
+export type { BlockId, StructureExportedData, StructureId } from './types';

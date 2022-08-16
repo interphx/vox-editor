@@ -1,8 +1,12 @@
 import { action, makeObservable, observable } from 'mobx';
-import { Structure } from '../structure';
-import { createStructureFromExportedData } from '../structure/create-from-data';
-import { StructureExportedData } from '../structure/exported-data';
-import { BlockId, StructureId, StructureWithChildren } from '../structure/structure';
+import {
+    BlockId,
+    createStructureFromExportedData,
+    Structure,
+    StructureExportedData,
+    StructureId,
+    StructureWithChildren
+} from '../structure';
 import { Palette, PaletteExportedData } from './palette';
 
 export type ProjectExportedData = { readonly root: StructureExportedData; readonly palette: PaletteExportedData };
@@ -88,7 +92,7 @@ export class Project {
 
     static fromExportedData(data: ProjectExportedData): Project {
         const root = createStructureFromExportedData(data.root);
-        if (!root.canHaveChildren()) {
+        if (!root.isContainer()) {
             throw new Error(`Root must be a container structure`);
         }
         return new Project(root, Palette.fromExportedData(data.palette));

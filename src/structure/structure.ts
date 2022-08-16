@@ -1,8 +1,5 @@
 import { Vec3Like } from '../utilities/geometry';
-import { StructureExportedData } from './exported-data';
-
-export type StructureId = string;
-export type BlockId = number;
+import { BlockId, StructureExportedData, StructureId } from './types';
 
 export interface StructureSnapshot {}
 
@@ -11,7 +8,7 @@ export interface Structure {
     readonly visible: boolean;
     get(x: number, y: number, z: number): BlockId;
     isMutable(): this is MutableStructure;
-    canHaveChildren(): this is StructureWithChildren;
+    isContainer(): this is ContainerStructure;
     clone(): this;
     blocks(): Iterable<readonly [Vec3Like, BlockId]>;
     isEmpty(): boolean;
@@ -25,7 +22,7 @@ export interface MutableStructure extends Structure {
     set(x: number, y: number, z: number, value: BlockId): void;
 }
 
-export interface StructureWithChildren {
+export interface ContainerStructure {
     getChildren(): readonly Structure[];
     addChild(child: Structure): void;
     removeChild(id: StructureId): void;

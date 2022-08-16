@@ -1,17 +1,10 @@
 import { action, makeObservable, observable } from 'mobx';
 import { Vec3Like } from '../utilities/geometry';
 import { createStructureFromExportedData } from './create-from-data';
-import { GroupExportedData } from './exported-data';
-import {
-    BlockId,
-    MutableStructure,
-    Structure,
-    StructureId,
-    StructureSnapshot,
-    StructureWithChildren
-} from './structure';
+import { ContainerStructure, MutableStructure, Structure, StructureSnapshot } from './structure';
+import { BlockId, GroupExportedData, StructureId } from './types';
 
-export class GroupStructure implements Structure, StructureWithChildren {
+export class GroupStructure implements Structure, ContainerStructure {
     constructor(public readonly id: StructureId, public visible: boolean, private readonly children: Structure[]) {
         makeObservable<GroupStructure, 'children'>(this, {
             visible: observable.ref,
@@ -32,7 +25,7 @@ export class GroupStructure implements Structure, StructureWithChildren {
         return false;
     }
 
-    canHaveChildren(): this is StructureWithChildren {
+    isContainer(): this is ContainerStructure {
         return true;
     }
 
@@ -82,7 +75,7 @@ export class GroupStructure implements Structure, StructureWithChildren {
         if (this.id === id) return this;
         for (const child of this.children) {
             if (child.id === id) return child;
-            if (child.canHaveChildren()) {
+            if (child.isContainer()) {
                 const subtreeResult = child.findChild(id);
                 if (subtreeResult !== null) return subtreeResult;
             }
@@ -109,7 +102,7 @@ export class GroupStructure implements Structure, StructureWithChildren {
 
     private flatten() {
         const collect = (structure: Structure): readonly Structure[] => {
-            if (!structure.canHaveChildren()) return [];
+            if (!structure.isContainer()) return [];
             return [structure, ...structure.getChildren().flatMap(collect)];
         };
         return collect(this);

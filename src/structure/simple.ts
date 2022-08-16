@@ -2,15 +2,8 @@ import { action, makeObservable, observable } from 'mobx';
 import { Vec3Like } from '../utilities/geometry';
 import { Vec3Dictionary } from '../utilities/vec3-dictionary';
 
-import { SimpleExportedData } from './exported-data';
-import {
-    BlockId,
-    MutableStructure,
-    Structure,
-    StructureId,
-    StructureSnapshot,
-    StructureWithChildren
-} from './structure';
+import { ContainerStructure, MutableStructure, Structure, StructureSnapshot } from './structure';
+import { BlockId, SimpleExportedData, StructureId } from './types';
 
 export class SimpleStructure implements Structure, MutableStructure {
     constructor(
@@ -30,7 +23,7 @@ export class SimpleStructure implements Structure, MutableStructure {
         return true;
     }
 
-    canHaveChildren(): this is StructureWithChildren {
+    isContainer(): this is ContainerStructure {
         return false;
     }
 

@@ -13,7 +13,7 @@ export const StructureTreeView = observer(function StructureTreeView({ style, cl
     const store = useRootStore();
     const history = store.getHistory();
     const root = history.getCurrent().getRoot();
-    const structures = root.canHaveChildren() ? root.getChildren() : [root];
+    const structures = root.isContainer() ? root.getChildren() : [root];
     const activeStructureId = store.selectedStructureId;
 
     const createDeletionHandler = (structure: Structure) => (event: React.SyntheticEvent) => {

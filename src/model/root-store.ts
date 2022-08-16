@@ -1,7 +1,6 @@
 import { action, computed, makeObservable, observable, runInAction } from 'mobx';
 import { Face, Object3D, Vector2, Vector3 } from 'three';
-import { GroupStructure, SimpleStructure, StructureId } from '../structure';
-import { BlockId, Structure } from '../structure/structure';
+import { BlockId, GroupStructure, SimpleStructure, Structure, StructureId } from '../structure';
 import { ActionHistory, SimpleActionHistory } from '../utilities/action-history';
 import { Action } from './action';
 import { Palette } from './palette';
@@ -157,7 +156,7 @@ function applyAction(project: Project, action: Action): Project {
 }
 
 function getDefaultSelectedStructureId(root: Structure) {
-    if (root.canHaveChildren()) {
+    if (root.isContainer()) {
         const children = root.getChildren();
         if (children.length > 0) return children[0].id;
     }

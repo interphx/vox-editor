@@ -1,3 +1,6 @@
+export type StructureId = string;
+export type BlockId = number;
+
 export type SimpleExportedData = {
     type: 'simple';
     id: string;
