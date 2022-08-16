@@ -21,9 +21,9 @@ export const pencil: Tool = (event, store, setGizmos) => {
         drawn.set(newVoxelPos, true);
         history.apply({
             type: 'SetBlock',
-            structureId: store.getSelectedStructureId(),
+            structureId: store.selectedStructureId,
             position: newVoxelPos,
-            blockId: store.getSelectedBlockId()
+            blockId: store.selectedBlockId
         });
     };
 

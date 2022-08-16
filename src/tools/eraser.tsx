@@ -20,7 +20,7 @@ export const eraser: Tool = (event, store, setGizmos) => {
         erased.set(voxelPos, true);
         history.apply({
             type: 'SetBlock',
-            structureId: store.getSelectedStructureId(),
+            structureId: store.selectedStructureId,
             position: voxelPos,
             blockId: 0
         });

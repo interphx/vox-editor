@@ -10,5 +10,5 @@ export function Arrow3d(props: { startPosition: Vector3; direction: Vector3; len
         ref.current.setLength(length);
         ref.current.setColor(color);
     }, [color, direction, length]);
-    return <arrowHelper ref={ref} position={startPosition} renderOrder={-1} />;
+    return <arrowHelper ref={ref} position={startPosition} />;
 }

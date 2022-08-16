@@ -1,4 +1,4 @@
-import { action, autorun, makeObservable, observable, runInAction } from 'mobx';
+import { action, computed, makeObservable, observable, runInAction } from 'mobx';
 import { Face, Object3D, Vector2, Vector3 } from 'three';
 import { GroupStructure, SimpleStructure, StructureId } from '../structure';
 import { BlockId, Structure } from '../structure/structure';
@@ -21,29 +21,30 @@ export class RootStore {
     };
 
     constructor(
-        private selectedStructureId: StructureId,
-        private selectedBlockId: BlockId,
+        private lastSelectedStructureId: StructureId,
+        private lastSelectedBlockId: BlockId,
         private history: ActionHistory<Project, Action>
     ) {
-        makeObservable<RootStore, 'selectedStructureId' | 'selectedBlockId' | 'history' | 'ensureValidity'>(this, {
+        makeObservable<RootStore, 'lastSelectedStructureId' | 'lastSelectedBlockId' | 'history'>(this, {
             debugData: observable.ref,
-            selectedStructureId: observable.ref,
-            selectedBlockId: observable.ref,
+            lastSelectedStructureId: observable.ref,
+            lastSelectedBlockId: observable.ref,
             history: observable.ref,
             selectStructure: action,
             selectBlockType: action,
             updateDebugData: action,
-            ensureValidity: action
-        });
-
-        autorun(() => {
-            console.log('Autorun called');
-            this.ensureValidity();
+            selectedBlockId: computed,
+            selectedStructureId: computed
         });
     }
 
-    getSelectedStructureId(): StructureId {
-        return this.selectedStructureId;
+    get selectedStructureId(): StructureId {
+        const project = this.getHistory().getCurrent();
+        const root = project.getRoot();
+
+        return root.isOrContains(this.lastSelectedStructureId)
+            ? this.lastSelectedStructureId
+            : getDefaultSelectedStructureId(root);
     }
 
     selectStructure(structureId: StructureId) {
@@ -51,11 +52,15 @@ export class RootStore {
         if (!project.getRoot().isOrContains(structureId)) {
             throw new Error(`Structure ${structureId} is not a part of the hierarchy.`);
         }
-        this.selectedStructureId = structureId;
+        this.lastSelectedStructureId = structureId;
     }
 
-    getSelectedBlockId(): BlockId {
-        return this.selectedBlockId;
+    get selectedBlockId(): BlockId {
+        const project = this.getHistory().getCurrent();
+        const palette = project.getPalette();
+        return palette.getById(this.lastSelectedBlockId) === null
+            ? getDefaultSelectedBlockId(palette)
+            : this.lastSelectedBlockId;
     }
 
     selectBlockType(blockId: BlockId) {
@@ -63,7 +68,7 @@ export class RootStore {
         if (project.getPalette().getById(blockId) === null) {
             throw new Error(`Block type ${blockId} is not a part of the palette.`);
         }
-        this.selectedBlockId = blockId;
+        this.lastSelectedBlockId = blockId;
     }
 
     updateDebugData(data: typeof this['debugData']) {
@@ -77,18 +82,6 @@ export class RootStore {
     importProject(projectData: ProjectExportedData) {
         const project = Project.fromExportedData(projectData);
         this.history = createHistory(project);
-    }
-
-    private ensureValidity() {
-        const project = this.getHistory().getCurrent();
-        const root = project.getRoot();
-        const palette = project.getPalette();
-        if (!root.isOrContains(this.selectedStructureId)) {
-            this.selectedStructureId = getDefaultSelectedStructureId(root);
-        }
-        if (palette.getById(this.selectedBlockId) === null) {
-            this.selectedBlockId = getDefaultSelectedBlockId(palette);
-        }
     }
 }
 
@@ -142,6 +135,13 @@ function applyAction(project: Project, action: Action): Project {
         }
         case 'RemoveStructure': {
             project.removeStructure(action.structureId);
+            break;
+        }
+        case 'SetStructureVisibility': {
+            const structure = project.getRoot().findChild(action.structureId);
+            if (structure) {
+                structure.setVisibility(action.visible);
+            }
             break;
         }
         case 'Batch': {

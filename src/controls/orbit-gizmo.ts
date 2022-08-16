@@ -1,6 +1,9 @@
 import { Matrix4, Vector2, Vector3 } from 'three';
 import { OrbitControls } from './orbit-gizmo-controls';
 
+/**
+ * Adapted from https://github.com/Fennec-hub/ThreeOrbitControlsGizmo
+ */
 export class OrbitControlsGizmo {
     lock: boolean;
     lockX: boolean;

@@ -11,12 +11,16 @@ import {
     Vector3
 } from 'three';
 
-// This set of controls performs orbiting, dollying (zooming), and panning.
-// Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
-//
-//    Orbit - left mouse / touch: one-finger move
-//    Zoom - middle mouse, or mousewheel / touch: two-finger spread or squish
-//    Pan - right mouse, or left mouse + ctrl/meta/shiftKey, or arrow keys / touch: two-finger move
+/**
+ * Adapted from https://github.com/Fennec-hub/ThreeOrbitControlsGizmo
+ *
+ *
+ * This set of controls performs orbiting, dollying (zooming), and panning.
+ * Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
+ *    Orbit - left mouse / one-finger move
+ *    Zoom - mousewheel / two-finger spread or pinch
+ *    Pan - middle mouse / right mouse / left mouse + ctrl/meta/shiftKey / two-finger move
+ */
 
 const _changeEvent = { type: 'change' };
 const _startEvent = { type: 'start' };

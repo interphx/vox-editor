@@ -99,30 +99,11 @@ export const extruder: Tool = (event, store, setGizmos) => {
                     }
                     history.apply({
                         type: 'SetBlock',
-                        structureId: store.getSelectedStructureId(),
+                        structureId: store.selectedStructureId,
                         position: nextVoxelCenter.clone(),
-                        blockId: store.getSelectedBlockId()
+                        blockId: store.selectedBlockId
                     });
                 }
-                // while (spawned <= maxCubesToSpawn) {
-                //     spawned += 1;
-                //     nextVoxelCenter.add(direction.worldVector).round();
-                //     const distanceFromNewVoxelToOriginalVoxelInViewport = projectToViewport(
-                //         nextVoxelCenter,
-                //         event.camera
-                //     ).distanceTo(startVoxelPosInViewport);
-                //     const distanceFromPointerToOriginalVoxelInViewport =
-                //         event.viewportPoint.distanceTo(startVoxelPosInViewport);
-                //     if (distanceFromNewVoxelToOriginalVoxelInViewport > distanceFromPointerToOriginalVoxelInViewport) {
-                //         break;
-                //     }
-                //     history.apply({
-                //         type: 'SetBlock',
-                //         structureId: store.getSelectedStructureId(),
-                //         position: nextVoxelCenter.clone(),
-                //         blockId: store.getSelectedBlockId()
-                //     });
-                // }
             });
 
             setGizmos(generateGizmos(vector, direction));

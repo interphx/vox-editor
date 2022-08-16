@@ -3,7 +3,9 @@ import React, { useCallback, useMemo, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { Color, Face, Object3D, OrthographicCamera, PerspectiveCamera, Vector2, Vector3 } from 'three';
 import { UiColor } from '../design';
+import { RootContext } from '../hooks/root-context';
 import { useOrbitControls } from '../hooks/use-orbit-comtrols';
+import { useRootStore } from '../hooks/use-root-store';
 import { Gizmo, isGizmo2d, isGizmo3d } from '../model/gizmo';
 import { ToolId } from '../tools';
 import { Gizmo2dView } from './gizmo-2d-view';
@@ -14,7 +16,7 @@ export function View3d(props: {
     style?: React.HTMLAttributes<HTMLDivElement>['style'];
     actions: JSX.Element;
     selectedToolId: ToolId;
-    meshes: readonly JSX.Element[];
+    meshes: React.ReactNode;
     onDown: (event: PointerInteractionEvent) => void;
     onMove: (event: PointerInteractionEvent) => void;
     onToolSelect: (tool: ToolId) => void;
@@ -22,6 +24,8 @@ export function View3d(props: {
     enableControls: boolean;
 }) {
     const { onDown, onMove, meshes, enableControls, gizmos, actions, style, className } = props;
+
+    const root = useRootStore();
 
     // These are intentionally states and not refs, so that their changes
     // trigger re-rendering.
@@ -74,6 +78,7 @@ export function View3d(props: {
 
     const handleThreeMove = useCallback(
         (event: ThreeEvent<MouseEvent>) => {
+            event.stopPropagation();
             latestHoveredObjectData.current.object = event.object;
             latestHoveredObjectData.current.face = event.face ?? null;
             latestHoveredObjectData.current.worldPoint = event.point;
@@ -108,6 +113,7 @@ export function View3d(props: {
     );
 
     const handleThreeLeave = useCallback((event: ThreeEvent<MouseEvent>) => {
+        event.stopPropagation();
         latestHoveredObjectData.current.object = null;
         latestHoveredObjectData.current.face = null;
         latestHoveredObjectData.current.worldPoint = null;
@@ -126,16 +132,18 @@ export function View3d(props: {
                 ref={element => setCanvas(element)}
                 onCreated={event => setCamera(event.camera)}
             >
-                {sceneGlobals}
-                <group
-                    onPointerDown={handleThreeDown}
-                    onPointerMove={handleThreeMove}
-                    onPointerLeave={handleThreeLeave}
-                    onPointerMissed={handleThreeMissed}
-                >
-                    {meshes}
-                    {gizmos3d}
-                </group>
+                <RootContext.Provider value={root}>
+                    {sceneGlobals}
+                    <group
+                        onPointerDown={handleThreeDown}
+                        onPointerMove={handleThreeMove}
+                        onPointerLeave={handleThreeLeave}
+                        onPointerMissed={handleThreeMissed}
+                    >
+                        {meshes}
+                        {gizmos3d}
+                    </group>
+                </RootContext.Provider>
             </Canvas>
             {gizmos2d.map((gizmo, index) => (
                 <Gizmo2dView key={index} gizmo={gizmo} />

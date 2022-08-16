@@ -2,24 +2,35 @@ import { faEye, faEyeSlash } from '@fortawesome/free-regular-svg-icons';
 import { faPlus, faTrash } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { observer } from 'mobx-react-lite';
-import { HTMLAttributes } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { UiColor, UiSize } from '../design';
 import { useRootStore } from '../hooks/use-root-store';
-import { SimpleStructure } from '../structure';
+import { SimpleStructure, Structure } from '../structure';
+import { StyledProps } from '../types/props';
 
-export const StructureTreeView = observer(function StructureTreeView({
-    style,
-    className
-}: {
-    style?: HTMLAttributes<HTMLDivElement>['style'];
-    className?: string;
-}) {
+export const StructureTreeView = observer(function StructureTreeView({ style, className }: StyledProps) {
     const store = useRootStore();
     const history = store.getHistory();
     const root = history.getCurrent().getRoot();
     const structures = root.canHaveChildren() ? root.getChildren() : [root];
-    const activeStructureId = store.getSelectedStructureId();
+    const activeStructureId = store.selectedStructureId;
+
+    const createDeletionHandler = (structure: Structure) => (event: React.SyntheticEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        history.apply({ type: 'RemoveStructure', structureId: structure.id });
+    };
+
+    const createVisibilityHandler = (structure: Structure) => (event: React.SyntheticEvent) => {
+        event.stopPropagation();
+        event.preventDefault();
+        history.apply({
+            type: 'SetStructureVisibility',
+            structureId: structure.id,
+            visible: !structure.visible
+        });
+    };
 
     const rows = structures.map(structure => (
         <Item
@@ -30,23 +41,11 @@ export const StructureTreeView = observer(function StructureTreeView({
             <Title>{structure.id}</Title>
             <ItemActions>
                 {structures.length > 1 && (
-                    <MiniIconButton
-                        onClick={event => {
-                            event.stopPropagation();
-                            event.preventDefault();
-                            history.apply({ type: 'RemoveStructure', structureId: structure.id });
-                        }}
-                    >
+                    <MiniIconButton onClick={createDeletionHandler(structure)}>
                         <FontAwesomeIcon icon={faTrash} />
                     </MiniIconButton>
                 )}
-                <MiniIconButton
-                    onClick={event => {
-                        event.stopPropagation();
-                        event.preventDefault();
-                        structure.setVisibility(!structure.visible);
-                    }}
-                >
+                <MiniIconButton onClick={createVisibilityHandler(structure)}>
                     <FontAwesomeIcon icon={structure.visible ? faEye : faEyeSlash} />
                 </MiniIconButton>
             </ItemActions>
@@ -75,14 +74,14 @@ export const StructureTreeView = observer(function StructureTreeView({
 
 const layerNameRegEx = /^\s*layer\s*(\d+)\s*/i;
 function generateLayerName(existingNames: readonly string[]) {
-    const max = existingNames.reduce((max, name) => {
-        const match = name.match(layerNameRegEx);
+    const maxIndex = existingNames.reduce((max, name) => {
+        const match: RegExpMatchArray | null = name.match(layerNameRegEx);
         if (!match || match.length < 2) return max;
         const value = Number(match[1]);
         if (!isFinite(value)) return max;
         return value > max ? value : max;
     }, 0);
-    return `Layer ${max + 1}`;
+    return `Layer ${maxIndex + 1}`;
 }
 
 const Actions = styled.div``;

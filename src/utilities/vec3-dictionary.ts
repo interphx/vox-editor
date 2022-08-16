@@ -1,6 +1,5 @@
 import { Dictionary } from './dictionary';
-
-export type Vec3Like = { readonly x: number; readonly y: number; readonly z: number };
+import { Vec3Like } from './geometry';
 export class Vec3Dictionary<T> extends Dictionary<Vec3Like, T> {
     constructor() {
         super(hashVec3, vec3Equal);

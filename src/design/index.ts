@@ -8,7 +8,7 @@ export const UiSize = {
 };
 
 export const UiColor = {
-    background: '#262626',
+    background: '#242429',
     sidebar: '#353535',
     panel: '#252526',
     button: '#2C2C2C',

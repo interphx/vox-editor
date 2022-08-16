@@ -1,4 +1,4 @@
-import { Vec3Like } from '../utilities/vec3-dictionary';
+import { Vec3Like } from '../utilities/geometry';
 import { StructureExportedData } from './exported-data';
 
 export type StructureId = string;

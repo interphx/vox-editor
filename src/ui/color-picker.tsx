@@ -10,7 +10,7 @@ import { ToolButton } from './tool-button';
 
 export const BlockTypePicker = observer(function ColorPicker() {
     const store = useRootStore();
-    const colorId = store.getSelectedBlockId();
+    const colorId = store.selectedBlockId;
     const project = store.getHistory().getCurrent();
     const palette = project.getPalette();
     const color = palette.getById(colorId)!.color;
@@ -36,7 +36,10 @@ export const BlockTypePicker = observer(function ColorPicker() {
                             key={id}
                             title={name}
                             style={{ background: color }}
-                            onClick={() => store.selectBlockType(id)}
+                            onClick={() => {
+                                store.selectBlockType(id);
+                                setOpen(false);
+                            }}
                         ></Item>
                     ))}
                 </Colors>

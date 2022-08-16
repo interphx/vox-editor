@@ -1,5 +1,7 @@
 import { action, makeObservable, observable } from 'mobx';
-import { Vec3Dictionary, Vec3Like } from '../utilities/vec3-dictionary';
+import { Vec3Like } from '../utilities/geometry';
+import { Vec3Dictionary } from '../utilities/vec3-dictionary';
+
 import { SimpleExportedData } from './exported-data';
 import {
     BlockId,

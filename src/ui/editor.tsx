@@ -8,6 +8,7 @@ import { useRootStore } from '../hooks/use-root-store';
 import { ToolId, tools } from '../tools';
 import { ActionBar } from './action-bar';
 import { BlockTypePicker } from './color-picker';
+import { Cursor3d } from './cursor-3d';
 import { DebugView } from './debug-view';
 import { PointerInteractionEvent } from './pointer-interaction-event';
 import { ProjectActions } from './project-actions';
@@ -27,22 +28,15 @@ export const Editor = observer(function WorkingArea() {
 
     useEffect(() => {
         const undoListener = (event: KeyboardEvent) => {
-            console.log(event.key, event.code);
             const actions = {
                 KeyZ: () => {
                     if (projectHistory.canUndo()) {
-                        console.log(`Undo`);
                         projectHistory.undo();
-                    } else {
-                        console.log(`No actions to undo`);
                     }
                 },
                 KeyY: () => {
                     if (projectHistory.canRedo()) {
-                        console.log(`Redo`);
                         projectHistory.redo();
-                    } else {
-                        console.log(`No actions to redo`);
                     }
                 }
             };
@@ -86,12 +80,19 @@ export const Editor = observer(function WorkingArea() {
         [updateDebugData, updateInteraction]
     );
 
+    const meshes = (
+        <>
+            {project.getMeshes()}
+            {!interactionActive && <Cursor3d />}
+        </>
+    );
+
     return (
         <Container>
             <View3d
                 onDown={handleDown}
                 onMove={handleMove}
-                meshes={project.getMeshes()}
+                meshes={meshes}
                 onToolSelect={setToolId}
                 selectedToolId={toolId}
                 gizmos={interactionGizmos}

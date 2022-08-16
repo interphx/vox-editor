@@ -1,4 +1,5 @@
 import { Camera, Vector2, Vector3 } from 'three';
+import { Vec3Like } from './geometry';
 
 export function vecToString(vector: { readonly x: number; readonly y: number; readonly z?: number }) {
     if ('z' in vector) {
@@ -8,8 +9,12 @@ export function vecToString(vector: { readonly x: number; readonly y: number; re
     }
 }
 
-export const worldToVoxel = (worldPos: Vector3, faceNormal: Vector3): Vector3 =>
-    worldPos.clone().sub(faceNormal.clone().multiplyScalar(0.5)).round().floor();
+export const worldToVoxel = (worldPos: Vec3Like, faceNormal: Vec3Like): Vector3 =>
+    new Vector3(
+        Math.round(worldPos.x - faceNormal.x * 0.5),
+        Math.round(worldPos.y - faceNormal.y * 0.5),
+        Math.round(worldPos.z - faceNormal.z * 0.5)
+    );
 
 export const projectToViewport = (vector: Vector3, camera: Camera): Vector2 => {
     const projected = vector.clone().project(camera);

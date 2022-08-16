@@ -24,13 +24,13 @@ export class Project {
     }
 
     addStructure(structure: Structure) {
-        this.lastOperationId += 1;
         this.root.addChild(structure);
+        this.lastOperationId += 1;
     }
 
     removeStructure(structureId: StructureId) {
-        this.lastOperationId += 1;
         this.root.removeChild(structureId);
+        this.lastOperationId += 1;
     }
 
     getBlock(x: number, y: number, z: number): number {
@@ -56,6 +56,10 @@ export class Project {
     }
 
     getRoot() {
+        // TODO: Make this.root an observable atom
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+        this.lastOperationId;
+
         return this.root;
     }
 

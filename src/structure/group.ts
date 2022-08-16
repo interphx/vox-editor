@@ -1,5 +1,5 @@
 import { action, makeObservable, observable } from 'mobx';
-import { Vec3Like } from '../utilities/vec3-dictionary';
+import { Vec3Like } from '../utilities/geometry';
 import { createStructureFromExportedData } from './create-from-data';
 import { GroupExportedData } from './exported-data';
 import {

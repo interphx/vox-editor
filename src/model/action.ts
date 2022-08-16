@@ -18,9 +18,20 @@ interface RemoveStructureAction {
     readonly structureId: StructureId;
 }
 
+interface SetStructureVisibilityAction {
+    readonly type: 'SetStructureVisibility';
+    readonly structureId: StructureId;
+    readonly visible: boolean;
+}
+
 interface BatchAction {
     readonly type: 'Batch';
     readonly actions: readonly Action[];
 }
 
-export type Action = SetBlockAction | AddStructureAction | RemoveStructureAction | BatchAction;
+export type Action =
+    | SetBlockAction
+    | AddStructureAction
+    | RemoveStructureAction
+    | SetStructureVisibilityAction
+    | BatchAction;
