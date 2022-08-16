@@ -4,6 +4,7 @@ import { pencil } from './pencil';
 
 import { faEraser, faPen, faPenRuler, faUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
 import { cameraMovement } from './camera-movement';
+import { planeExtruder } from './plane-extruder';
 
 export const tools = [
     {
@@ -19,6 +20,11 @@ export const tools = [
     {
         id: 'extruder',
         tool: extruder,
+        icon: faPenRuler
+    },
+    {
+        id: 'plane-extruder',
+        tool: planeExtruder,
         icon: faPenRuler
     },
     {

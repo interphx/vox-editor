@@ -36,21 +36,6 @@ export const extruder: Tool = (event, store, setGizmos) => {
     const checkpoint = history.getCurrentPosition();
 
     const generateGizmos = (mouseVector: Vector2 | null, activeDir: typeof dirs[number] | null) => {
-        // const centerDot: Gizmo = {
-        //     type: '2d-dot',
-        //     color: 'cyan',
-        //     pos: startVoxelPosInViewport
-        // };
-
-        // const dotProductsWithMouse: Gizmo[] = !mouseVector
-        //     ? []
-        //     : dirs.map(dir => ({
-        //           type: '2d-text',
-        //           color: 'white',
-        //           pos: startVoxelPosInViewport.clone().add(dir.viewportVector),
-        //           text: `${Math.abs(1 - dir.viewportVectorNormalized.dot(mouseVector)).toFixed(2)}`
-        //       }));
-
         const cardinalArrows: Gizmo[] = dirs.map(dir => ({
             type: '3d' as const,
             threeElement: (
@@ -63,13 +48,6 @@ export const extruder: Tool = (event, store, setGizmos) => {
                 />
             )
         }));
-
-        // const viewportArrows: Gizmo[] = dirs.map(dir => ({
-        //     type: '2d-arrow' as const,
-        //     start: startVoxelPosInViewport.clone(),
-        //     end: startVoxelPosInViewport.clone().add(dir.viewportVectorNormalized.clone().multiplyScalar(0.1)),
-        //     color: 'pink'
-        // }));
 
         return cardinalArrows;
     };
@@ -84,7 +62,6 @@ export const extruder: Tool = (event, store, setGizmos) => {
             runInAction(() => {
                 history.goToPosition(checkpoint);
 
-                //let spawned = 0;
                 let nextVoxelCenter = startVoxelPosInWorld.clone();
                 for (let spawned = 0; spawned < maxCubesToSpawn; ++spawned) {
                     nextVoxelCenter.add(direction.worldVector).round();

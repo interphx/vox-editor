@@ -115,7 +115,7 @@ function createHistory(initialProjectState: Project) {
         applyAction,
         project => project.clone(),
         (_project, snapshot) => snapshot.clone(),
-        5
+        15
     );
 }
 
