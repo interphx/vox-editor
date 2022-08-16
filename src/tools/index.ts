@@ -2,8 +2,9 @@ import { eraser } from './eraser';
 import { extruder } from './extruder';
 import { pencil } from './pencil';
 
-import { faEraser, faPen, faPenRuler, faUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
+import { faEraser, faPaintbrush, faPen, faPenRuler, faUpDownLeftRight } from '@fortawesome/free-solid-svg-icons';
 import { cameraMovement } from './camera-movement';
+import { paint } from './paint';
 import { planeExtruder } from './plane-extruder';
 
 export const tools = [
@@ -18,6 +19,16 @@ export const tools = [
         icon: faPen
     },
     {
+        id: 'paint',
+        tool: paint,
+        icon: faPaintbrush
+    },
+    {
+        id: 'eraser',
+        tool: eraser,
+        icon: faEraser
+    },
+    {
         id: 'extruder',
         tool: extruder,
         icon: faPenRuler
@@ -26,11 +37,6 @@ export const tools = [
         id: 'plane-extruder',
         tool: planeExtruder,
         icon: faPenRuler
-    },
-    {
-        id: 'eraser',
-        tool: eraser,
-        icon: faEraser
     }
 ] as const;
 
