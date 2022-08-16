@@ -12,9 +12,9 @@ import { Cursor3d } from './cursor-3d';
 import { DebugView } from './debug-view';
 import { PointerInteractionEvent } from './pointer-interaction-event';
 import { ProjectActions } from './project-actions';
+import { SceneView } from './scene-view';
 import { StructureTreeView } from './structure-tree-view';
 import { ToolButton } from './tool-button';
-import { View3d } from './view-3d';
 
 export const Editor = observer(function WorkingArea() {
     const rootStore = useRootStore();
@@ -82,14 +82,14 @@ export const Editor = observer(function WorkingArea() {
 
     const meshes = (
         <>
-            {project.getMeshes()}
+            {project.meshes}
             {!interactionActive && <Cursor3d />}
         </>
     );
 
     return (
         <Container>
-            <View3d
+            <SceneView
                 onDown={handleDown}
                 onMove={handleMove}
                 meshes={meshes}

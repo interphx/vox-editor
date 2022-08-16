@@ -1,4 +1,4 @@
-import { action, makeObservable, observable } from 'mobx';
+import { action, computed, makeObservable, observable } from 'mobx';
 import {
     BlockId,
     createStructureFromExportedData,
@@ -7,6 +7,7 @@ import {
     StructureId,
     StructureWithChildren
 } from '../structure';
+import { Vec3Dictionary } from '../utilities/vec3-dictionary';
 import { Palette, PaletteExportedData } from './palette';
 
 export type ProjectExportedData = { readonly root: StructureExportedData; readonly palette: PaletteExportedData };
@@ -19,7 +20,8 @@ export class Project {
             lastOperationId: observable.ref,
             addStructure: action,
             removeStructure: action,
-            setBlock: action
+            setBlock: action,
+            meshes: computed
         });
     }
 
@@ -41,19 +43,21 @@ export class Project {
         return this.root.get(x, y, z);
     }
 
-    getMeshes(): JSX.Element[] {
+    get meshes(): readonly JSX.Element[] {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.lastOperationId;
 
         // TODO: Generate optimized meshes consisting
         // only of visible planes
         const meshes: JSX.Element[] = [];
+        const viewed = new Vec3Dictionary<boolean>();
 
-        for (const [{ x, y, z }, blockId] of Array.from(this.root.blocks())) {
-            if (blockId === 0) continue;
+        for (const [pos, blockId] of Array.from(this.root.blocks())) {
+            if (blockId === 0 || viewed.has(pos)) continue;
             const color = this.palette.getById(blockId);
-            if (color === null) continue;
-            meshes.push(createCubeNode(x, y, z, color.color));
+            if (color == null) continue;
+            viewed.set(pos, true);
+            meshes.push(createCubeNode(pos.x, pos.y, pos.z, color.color));
         }
 
         return meshes;

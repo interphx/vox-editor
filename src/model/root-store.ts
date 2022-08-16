@@ -4,7 +4,7 @@ import { BlockId, GroupStructure, SimpleStructure, Structure, StructureId } from
 import { ActionHistory, SimpleActionHistory } from '../utilities/action-history';
 import { Action } from './action';
 import { Palette } from './palette';
-import { Project, ProjectExportedData } from './project-store';
+import { Project, ProjectExportedData } from './project';
 
 export class RootStore {
     public debugData: {

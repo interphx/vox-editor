@@ -11,7 +11,7 @@ import { ToolId } from '../tools';
 import { Gizmo2dView } from './gizmo-2d-view';
 import { PointerInteractionEvent } from './pointer-interaction-event';
 
-export function View3d(props: {
+export function SceneView(props: {
     className?: string;
     style?: React.HTMLAttributes<HTMLDivElement>['style'];
     actions: JSX.Element;
@@ -99,7 +99,7 @@ export function View3d(props: {
     );
 
     const handleThreeMissed = useCallback(
-        (event: MouseEvent) => {
+        (event: MouseEvent | React.MouseEvent) => {
             if (event.button !== 0) return;
             latestHoveredObjectData.current.object = null;
             latestHoveredObjectData.current.face = null;
@@ -112,7 +112,7 @@ export function View3d(props: {
         [createEventData, onDown]
     );
 
-    const handleThreeLeave = useCallback((event: ThreeEvent<MouseEvent>) => {
+    const handleThreeLeave = useCallback((event: Event | React.SyntheticEvent | ThreeEvent<unknown>) => {
         event.stopPropagation();
         latestHoveredObjectData.current.object = null;
         latestHoveredObjectData.current.face = null;
@@ -130,6 +130,7 @@ export function View3d(props: {
                 frameloop="always"
                 camera={camera}
                 ref={element => setCanvas(element)}
+                onMouseLeave={handleThreeLeave}
                 onCreated={event => setCamera(event.camera)}
             >
                 <RootContext.Provider value={root}>
